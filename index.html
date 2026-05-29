@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>chadchanonk · Research Hub</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0a0a0f;
+      --surface: #13131a;
+      --border: #1e1e2e;
+      --accent: #7efff5;
+      --accent2: #ff6b6b;
+      --accent3: #ffd93d;
+      --text: #e8e8f0;
+      --muted: #6b6b8a;
+    }
+
+    body {
+      font-family: 'DM Mono', monospace;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Animated background grid */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(126,255,245,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(126,255,245,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 60px 24px 80px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Header */
+    header {
+      margin-bottom: 60px;
+      animation: fadeUp 0.6s ease both;
+    }
+
+    .tag {
+      display: inline-block;
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--accent);
+      border: 1px solid var(--accent);
+      padding: 4px 12px;
+      border-radius: 2px;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2.2rem, 6vw, 3.8rem);
+      font-weight: 800;
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+      margin-bottom: 16px;
+    }
+
+    h1 span {
+      color: var(--accent);
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 13px;
+      letter-spacing: 0.05em;
+    }
+
+    /* Divider */
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, var(--accent), transparent);
+      margin: 40px 0;
+      opacity: 0.4;
+    }
+
+    /* File grid */
+    .files {
+      display: grid;
+      gap: 16px;
+    }
+
+    .file-card {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 22px 26px;
+      text-decoration: none;
+      color: var(--text);
+      transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+      animation: fadeUp 0.6s ease both;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .file-card::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 3px;
+      background: var(--card-accent, var(--accent));
+      border-radius: 8px 0 0 8px;
+    }
+
+    .file-card:hover {
+      border-color: var(--card-accent, var(--accent));
+      transform: translateX(4px);
+      box-shadow: 0 0 24px rgba(126,255,245,0.08);
+    }
+
+    .file-card:nth-child(1) { animation-delay: 0.1s; --card-accent: var(--accent); }
+    .file-card:nth-child(2) { animation-delay: 0.2s; --card-accent: var(--accent2); }
+    .file-card:nth-child(3) { animation-delay: 0.3s; --card-accent: var(--accent3); }
+    .file-card:nth-child(4) { animation-delay: 0.4s; --card-accent: #b48eff; }
+
+    .file-icon {
+      font-size: 22px;
+      flex-shrink: 0;
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255,255,255,0.04);
+      border-radius: 6px;
+    }
+
+    .file-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .file-name {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 15px;
+      margin-bottom: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .file-desc {
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.04em;
+    }
+
+    .file-type {
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--card-accent, var(--accent));
+      padding: 3px 8px;
+      border: 1px solid var(--card-accent, var(--accent));
+      border-radius: 2px;
+      opacity: 0.8;
+      flex-shrink: 0;
+    }
+
+    /* Arrow */
+    .arrow {
+      color: var(--muted);
+      font-size: 18px;
+      transition: color 0.2s, transform 0.2s;
+      flex-shrink: 0;
+    }
+
+    .file-card:hover .arrow {
+      color: var(--card-accent, var(--accent));
+      transform: translateX(3px);
+    }
+
+    /* Footer */
+    footer {
+      margin-top: 64px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.05em;
+      animation: fadeUp 0.6s 0.5s ease both;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    footer a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    footer a:hover { text-decoration: underline; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <header>
+      <div class="tag">Research Hub</div>
+      <h1>chad<span>chanonk</span></h1>
+      <p class="subtitle">// project files &amp; documentation index</p>
+    </header>
+
+    <div class="divider"></div>
+
+    <div class="files">
+
+      <a class="file-card" href="pi-swe-explorer.html">
+        <div class="file-icon">🌐</div>
+        <div class="file-info">
+          <div class="file-name">pi-swe-explorer</div>
+          <div class="file-desc">Overview of PI × SWE — interactive explorer</div>
+        </div>
+        <span class="file-type">HTML</span>
+        <span class="arrow">→</span>
+      </a>
+
+      <a class="file-card" href="frameworks_deep_dive.md">
+        <div class="file-icon">📐</div>
+        <div class="file-info">
+          <div class="file-name">frameworks_deep_dive</div>
+          <div class="file-desc">AI Augmented SPI — framework analysis notes</div>
+        </div>
+        <span class="file-type">MD</span>
+        <span class="arrow">→</span>
+      </a>
+
+      <a class="file-card" href="research-notes-goodnotes.md">
+        <div class="file-icon">📓</div>
+        <div class="file-info">
+          <div class="file-name">research-notes-goodnotes</div>
+          <div class="file-desc">AI Augmented SPI — Goodnotes research notes</div>
+        </div>
+        <span class="file-type">MD</span>
+        <span class="arrow">→</span>
+      </a>
+
+      <a class="file-card" href="README.md">
+        <div class="file-icon">📄</div>
+        <div class="file-info">
+          <div class="file-name">README</div>
+          <div class="file-desc">Project overview &amp; getting started</div>
+        </div>
+        <span class="file-type">MD</span>
+        <span class="arrow">→</span>
+      </a>
+
+    </div>
+
+    <footer>
+      <span>github.com/<a href="https://github.com/chadchanonk" target="_blank">chadchanonk</a></span>
+      <span>4 files · last updated just now</span>
+    </footer>
+
+  </div>
+</body>
+</html>
