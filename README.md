@@ -1,4 +1,4 @@
-# chadchanonk · Research Hub
+# Chadchanon Klongsab · Research Hub
 
 ![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-live-7efff5?style=flat-square&logo=github)
 ![Files](https://img.shields.io/badge/files-4-ff6b6b?style=flat-square)
