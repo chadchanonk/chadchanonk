@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>PhD Research Notes · Process Improvement × SWE</title>
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #faf8f4;
+      --surface: #ffffff;
+      --border: #e8e2d8;
+      --text: #2a2520;
+      --muted: #8c7e6e;
+      --hot: #c94040;
+      --accent: #2a6496;
+      --accent2: #3a7a4a;
+      --tag-bg: #f0ebe3;
+    }
+    body { font-family: 'Lora', serif; background: var(--bg); color: var(--text); line-height: 1.75; }
+
+    /* Top nav */
+    .topnav {
+      background: var(--text);
+      padding: 12px 32px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+    }
+    .topnav a { color: #aaa; text-decoration: none; }
+    .topnav a:hover { color: #fff; }
+    .topnav .sep { color: #555; }
+    .topnav .current { color: #ffd93d; }
+
+    .container { max-width: 820px; margin: 0 auto; padding: 48px 24px 80px; }
+
+    /* Header */
+    .hero { margin-bottom: 48px; padding-bottom: 32px; border-bottom: 2px solid var(--text); }
+    .hero-emoji { font-size: 2.4rem; margin-bottom: 12px; }
+    h1 { font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 700; line-height: 1.2; margin-bottom: 8px; }
+    h1 span { color: var(--hot); }
+    .meta { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); margin-top: 16px; display: flex; flex-wrap: wrap; gap: 16px; }
+    .meta span { display: flex; align-items: center; gap: 6px; }
+
+    /* TOC */
+    .toc { background: var(--tag-bg); border-left: 3px solid var(--text); padding: 20px 24px; margin-bottom: 48px; border-radius: 0 6px 6px 0; }
+    .toc h3 { font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; font-family: 'JetBrains Mono', monospace; color: var(--muted); margin-bottom: 12px; }
+    .toc ol { padding-left: 20px; }
+    .toc li { margin-bottom: 6px; }
+    .toc a { color: var(--accent); text-decoration: none; font-size: 14px; }
+    .toc a:hover { text-decoration: underline; }
+
+    /* Sections */
+    .section { margin-bottom: 56px; }
+    h2 { font-size: 1.5rem; font-weight: 700; margin-bottom: 6px; padding-bottom: 8px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
+    h3 { font-size: 1.1rem; font-weight: 600; margin: 28px 0 12px; color: var(--text); }
+    h4 { font-size: 1rem; font-weight: 600; margin: 20px 0 8px; color: var(--accent); font-family: 'JetBrains Mono', monospace; }
+    p { margin-bottom: 14px; font-size: 15px; }
+
+    /* Tags */
+    .tag-hot { display: inline-block; background: var(--hot); color: white; font-size: 10px; font-family: 'JetBrains Mono', monospace; padding: 2px 8px; border-radius: 2px; letter-spacing: 0.1em; vertical-align: middle; margin-left: 6px; }
+    .tag-thesis { display: inline-block; background: var(--accent); color: white; font-size: 10px; font-family: 'JetBrains Mono', monospace; padding: 2px 8px; border-radius: 2px; letter-spacing: 0.1em; vertical-align: middle; margin-left: 6px; }
+    .tag-feasible { display: inline-block; background: var(--accent2); color: white; font-size: 10px; font-family: 'JetBrains Mono', monospace; padding: 2px 8px; border-radius: 2px; letter-spacing: 0.1em; vertical-align: middle; margin-left: 6px; }
+
+    /* Blockquote */
+    blockquote { border-left: 3px solid var(--hot); padding: 12px 20px; margin: 20px 0; background: #fdf5f5; border-radius: 0 6px 6px 0; font-style: italic; color: #5a3030; font-size: 14.5px; }
+
+    /* Tables */
+    .table-wrap { overflow-x: auto; margin: 20px 0; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th { background: var(--text); color: white; padding: 10px 14px; text-align: left; font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.05em; }
+    td { padding: 9px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    tr:nth-child(even) td { background: var(--tag-bg); }
+
+    /* Checklist */
+    .checklist { list-style: none; margin: 12px 0; }
+    .checklist li { padding: 6px 0 6px 28px; position: relative; font-size: 14px; border-bottom: 1px dashed var(--border); }
+    .checklist li::before { content: '☐'; position: absolute; left: 0; color: var(--hot); font-size: 16px; line-height: 1; }
+
+    /* Direction cards */
+    .direction { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 20px 24px; margin: 16px 0; border-left: 4px solid var(--accent); }
+    .direction.hot { border-left-color: var(--hot); }
+    .direction.feasible { border-left-color: var(--accent2); }
+    .direction h4 { margin-top: 0; font-size: 14px; }
+    .direction p { font-size: 13.5px; margin-bottom: 8px; }
+    .direction .method { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); }
+
+    /* Exam cards */
+    .exam-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin: 16px 0; }
+    .exam-card { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 14px 16px; font-size: 13px; }
+    .exam-card .code { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); margin-bottom: 4px; }
+
+    /* Parking lot */
+    .parking { background: #f5f0e8; border: 1px dashed #c0a870; border-radius: 8px; padding: 20px 24px; }
+    .parking ul { padding-left: 20px; }
+    .parking li { margin-bottom: 8px; font-size: 14px; font-style: italic; color: #5a4a30; }
+
+    /* Log */
+    .log-entry { border-left: 2px solid var(--border); padding: 8px 16px; margin-bottom: 8px; font-size: 13px; }
+    .log-date { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); margin-bottom: 4px; }
+
+    /* Footer */
+    footer { margin-top: 64px; padding-top: 24px; border-top: 2px solid var(--text); font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+    footer a { color: var(--accent); text-decoration: none; }
+
+    @media (max-width: 600px) { .container { padding: 24px 16px 60px; } h1 { font-size: 1.6rem; } }
+  </style>
+</head>
+<body>
+
+  <nav class="topnav">
+    <a href="index.html">← Home</a>
+    <span class="sep">/</span>
+    <span class="current">research-notes</span>
+  </nav>
+
+  <div class="container">
+
+    <div class="hero">
+      <div class="hero-emoji">📓</div>
+      <h1>PhD Research Notes<br/><span>Process Improvement × Software Engineering</span></h1>
+      <div class="meta">
+        <span>🎓 วศ.ด. Computer Engineering · Chulalongkorn University</span>
+        <span>📅 Intake: 1/2569 · Target: 2/2571</span>
+        <span>🗓 Last Updated: May 29, 2026</span>
+      </div>
+    </div>
+
+    <div class="toc">
+      <h3>Contents</h3>
+      <ol>
+        <li><a href="#topic1">Topic 1 — AI-Augmented SPI</a></li>
+        <li><a href="#topic2">Topic 2 — Technical Debt in the Age of GenAI</a></li>
+        <li><a href="#topic3">Topic 3 — Agile Transformation CSFs</a></li>
+        <li><a href="#topic4">Topic 4 — Lean Six Sigma + AI</a></li>
+        <li><a href="#topic5">Topic 5 — SPI in Global/Distributed Development</a></li>
+        <li><a href="#topic6">Topic 6 — SPI as Organisational Learning</a></li>
+        <li><a href="#qualifying">Qualifying Exam</a></li>
+        <li><a href="#comprehensive">Comprehensive Exam</a></li>
+        <li><a href="#conferences">Key Conferences</a></li>
+        <li><a href="#parking">Parking Lot</a></li>
+      </ol>
+    </div>
+
+    <!-- TOPIC 1 -->
+    <div class="section" id="topic1">
+      <h2>💡 Topic 1 — AI-Augmented Software Process Improvement <span class="tag-hot">#hot</span></h2>
+      <blockquote>How can LLMs and ML tools be embedded into the SPI lifecycle to predict, detect, and correct process degradation?</blockquote>
+
+      <h3>Key Observations</h3>
+      <ul style="padding-left:20px; font-size:14px;">
+        <li style="margin-bottom:8px;">AI now writes 20%+ of code at Google/Microsoft (2025) — how does this change SPI metrics?</li>
+        <li style="margin-bottom:8px;">Existing frameworks (DORA, SPACE, CMMI) were not designed for AI-generated code</li>
+        <li style="margin-bottom:8px;">Gap: new measurement models needed for AI-augmented teams</li>
+        <li style="margin-bottom:8px;">CMMI AI Working Group (IBM + CMMI Institute, 2025) integrating GenAI into CMMI practice areas</li>
+      </ul>
+
+      <h3>Potential Research Question</h3>
+      <blockquote>How should software process quality metrics be redefined when a significant portion of code is AI-generated?</blockquote>
+
+      <h3>Papers to Read</h3>
+      <ul class="checklist">
+        <li>arXiv:2603.28592 — Debt Behind the AI Boom: AI-Generated Code in the Wild</li>
+        <li>arXiv:2510.10165 — AI-Assisted Programming Decreases Productivity of Experienced Developers</li>
+        <li>CMMI + IBM AI WG press release (ISACA, April 2025)</li>
+      </ul>
+
+      <h4>1.1 What is AI-Augmented SPI?</h4>
+      <p>The classical SPI loop — <strong>measure → analyse → improve → control</strong> — is being reshaped by AI at every stage. AI agents continuously monitor telemetry, surface patterns, and propose (or apply) corrections. SPI becomes near-real-time rather than periodic.</p>
+
+      <div class="table-wrap">
+        <table>
+          <tr><th>Traditional SPI</th><th>AI-Augmented SPI</th></tr>
+          <tr><td>Plan improvement</td><td>Continuous telemetry ingestion</td></tr>
+          <tr><td>Collect process data</td><td>ML anomaly detection (always-on)</td></tr>
+          <tr><td>Human analysis</td><td>LLM-generated root cause hypotheses</td></tr>
+          <tr><td>Implement change</td><td>Automated refactoring / pipeline tuning</td></tr>
+          <tr><td>Evaluate result</td><td>Predictive outcome modelling</td></tr>
+        </table>
+      </div>
+      <blockquote>AI-augmented SPI can move faster than human understanding — trading visible process debt for invisible cognitive debt.</blockquote>
+
+      <h4>1.2 Three Lenses on AI-Augmented SPI</h4>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Lens</th><th>Description</th><th>Examples</th></tr>
+          <tr><td><strong>AI as Tool</strong></td><td>Using AI to improve SE processes</td><td>Predictive analytics, auto-refactoring, LLM code review</td></tr>
+          <tr><td><strong>AI as Subject</strong></td><td>Improving processes that involve AI</td><td>CMMI for AI, DevSecOps for AI pipelines, AI testing</td></tr>
+          <tr><td><strong>AI as Risk</strong></td><td>Managing new failure modes from AI</td><td>Cognitive debt, intent debt, code duplication, skill erosion</td></tr>
+        </table>
+      </div>
+      <blockquote>Most research sits in AI as Tool. The AI as Subject and AI as Risk lenses are underexplored — strong thesis territory.</blockquote>
+
+      <h4>1.4 The Measurement Gap — Core Problem</h4>
+      <blockquote>"You can't improve what you can't measure — and existing measures weren't built for AI."</blockquote>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Framework</th><th>What It Measures</th><th>Limitation with AI Code</th></tr>
+          <tr><td><strong>DORA</strong> (2014)</td><td>Deployment frequency, lead time, MTTR, change failure rate</td><td>Measures delivery speed, not code understanding or authorship quality</td></tr>
+          <tr><td><strong>SPACE</strong> (2021)</td><td>Satisfaction, Performance, Activity, Communication, Efficiency</td><td>Developer-centric; ignores AI agent contributions</td></tr>
+          <tr><td><strong>CMMI levels</strong></td><td>Process capability maturity (1–5)</td><td>Assumes human-authored artefacts; no AI-actor model</td></tr>
+          <tr><td><strong>SonarQube</strong></td><td>Code smells, bugs, vulnerabilities, duplication</td><td>Rule-based; misses semantic/intent issues in AI-generated code</td></tr>
+        </table>
+      </div>
+
+      <h4>1.5 Research Directions</h4>
+      <div class="direction hot">
+        <h4>Direction A — AI-Aware Metric Suite <span class="tag-hot">#hot</span> <span class="tag-thesis">#thesis-candidate</span></h4>
+        <p>Design and validate a new metric layer capturing process quality in AI-augmented teams. Possible new metrics: AI authorship ratio, human comprehension coverage, intent documentation coverage, AI-introduced defect rate.</p>
+        <p class="method">Method: Design Science Research (DSR) · Contribution: Framework + empirical validation</p>
+      </div>
+      <div class="direction hot">
+        <h4>Direction B — Process Model with AI as Actor <span class="tag-hot">#hot</span></h4>
+        <p>Propose a formal process model where AI agents have defined roles, responsibilities, and handoff protocols — similar to how DevOps formalised Dev/Ops collaboration.</p>
+        <p class="method">Method: Design Science + SLR · Contribution: Novel process model</p>
+      </div>
+      <div class="direction feasible">
+        <h4>Direction C — Empirical Study: AI-SPI Adoption in ASEAN <span class="tag-feasible">#feasible</span></h4>
+        <p>Survey how software teams in Thailand / Southeast Asia use AI for process improvement. Compare against global benchmarks (PEX 2025, DORA State of DevOps).</p>
+        <p class="method">Method: Online survey + follow-up interviews · Fit for: CIMPS 2026, EuroSPI 2026</p>
+      </div>
+      <div class="direction">
+        <h4>Direction D — Governance Framework for AI-Driven SPI Decisions</h4>
+        <p>When an AI tool autonomously applies a process change, how is that decision auditable and explainable? Connects to ISO/IEC 42001 (AI management systems).</p>
+        <p class="method">Method: Framework from ISO 42001 + CMMI AI WG + DevSecOps literature</p>
+      </div>
+
+      <h4>1.7 Thesis Framing Options</h4>
+      <div class="direction hot">
+        <h4>Option 1 (Recommended)</h4>
+        <p><em>"An AI-Aware Process Quality Measurement Framework for Software Teams Using Generative AI in the SDLC"</em></p>
+        <p>Highest novelty — no existing framework covers this. Achievable in 3–5 years with DSR + 2–3 case studies.</p>
+        <p class="method">Publication path: SLR paper → framework paper → validation paper</p>
+      </div>
+      <div class="direction">
+        <h4>Option 2</h4>
+        <p><em>"A Process Model for AI-Augmented Software Development: Defining AI as a Process Actor"</em></p>
+        <p class="method">Strong conceptual contribution · Needs expert validation · Good fit: JSS or EMSE</p>
+      </div>
+      <div class="direction feasible">
+        <h4>Option 3</h4>
+        <p><em>"AI-Driven SPI Adoption in Southeast Asian Software Organisations: An Empirical Investigation"</em></p>
+        <p class="method">Lower technical risk, strong regional relevance · Best fit: CIMPS, EuroSPI, regional SE journals</p>
+      </div>
+
+      <h4>1.8 Reading Roadmap</h4>
+      <h3 style="font-size:13px; color:var(--muted); margin-top:16px;">Phase 1 — Foundation (Months 1–3)</h3>
+      <ul class="checklist">
+        <li>Kitchenham (2004) — SLR guidelines</li>
+        <li>Hevner et al. (2004) — Design Science in IS Research (MIS Quarterly)</li>
+        <li>Humphrey (1989) — Managing the Software Process</li>
+        <li>Forsgren et al. (2018) — Accelerate (DORA foundations)</li>
+        <li>CMMI Institute (2023) — CMMI V3.0 Model Overview</li>
+      </ul>
+      <h3 style="font-size:13px; color:var(--muted); margin-top:16px;">Phase 2 — AI in SE (Months 3–6)</h3>
+      <ul class="checklist">
+        <li>arXiv:2603.28592 — Debt Behind the AI Boom (2025, empirical)</li>
+        <li>arXiv:2510.10165 — AI-Assisted Programming Decreases Productivity (2025)</li>
+        <li>arXiv:2603.22106 — Cognitive and Intent Debt (2025)</li>
+        <li>arXiv:2306.10194 — AI for Technical Debt Management (SLR, 15 papers)</li>
+        <li>ISACA (April 2025) — IBM joins CMMI AI Working Group</li>
+      </ul>
+      <h3 style="font-size:13px; color:var(--muted); margin-top:16px;">Phase 3 — Process Frameworks + Metrics (Months 6–9)</h3>
+      <ul class="checklist">
+        <li>Forsgren et al. (2021) — SPACE framework (ACM Queue)</li>
+        <li>ISO/IEC 42001:2023 — AI Management Systems</li>
+        <li>Santos et al. (2025) — Agile Transformation CSFs (JSERD)</li>
+        <li>EuroSPI 2024 proceedings (Munich)</li>
+        <li>PROFES 2024 proceedings (Tartu)</li>
+      </ul>
+
+      <h4>1.11 Target Journals & Conferences</h4>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Venue</th><th>Type</th><th>Impact</th><th>Notes</th></tr>
+          <tr><td><strong>EMSE</strong></td><td>Journal</td><td>High (Springer)</td><td>Best fit for empirical/case study work</td></tr>
+          <tr><td><strong>JSS</strong></td><td>Journal</td><td>High (Elsevier)</td><td>Good for framework + validation papers</td></tr>
+          <tr><td><strong>IST</strong></td><td>Journal</td><td>Mid-High (Elsevier)</td><td>Good for SLR papers</td></tr>
+          <tr><td><strong>PROFES 2026</strong></td><td>Conference</td><td>A-tier SPI</td><td>Dec 2026 · check CFP</td></tr>
+          <tr><td><strong>EuroSPI 2026</strong></td><td>Conference</td><td>B-tier SPI</td><td>Sep 2026 · Springer CCIS</td></tr>
+          <tr><td><strong>CIMPS 2026</strong></td><td>Conference</td><td>B-tier SPI</td><td>Oct 2026 · CMC journal special issue</td></tr>
+          <tr><td><strong>ICSSP 2026</strong></td><td>Conference</td><td>A-tier Processes</td><td>ACM DL proceedings</td></tr>
+          <tr><td><strong>ICSE-SEIP 2026</strong></td><td>Conference</td><td>A*-tier SE</td><td>Highly competitive; industry track</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- TOPIC 2 -->
+    <div class="section" id="topic2">
+      <h2>💡 Topic 2 — Technical Debt in the Age of GenAI</h2>
+      <blockquote>AI reduces traditional TD through refactoring, but accelerates new forms — cognitive and intent debt.</blockquote>
+      <ul style="padding-left:20px; font-size:14px; margin-bottom:16px;">
+        <li style="margin-bottom:8px;"><strong>Cognitive debt:</strong> team doesn't understand code they own</li>
+        <li style="margin-bottom:8px;"><strong>Intent debt:</strong> team doesn't remember why code was built that way</li>
+        <li style="margin-bottom:8px;">8× increase in duplicated code blocks since AI coding adoption (GitClear 2025)</li>
+        <li style="margin-bottom:8px;">Paradox: automation cleans debt faster than humans understand it</li>
+      </ul>
+      <h3>Potential RQ</h3>
+      <blockquote>What novel technical debt taxonomies emerge from AI-assisted development, and how can SPI frameworks detect and manage them?</blockquote>
+      <h3>Papers to Read</h3>
+      <ul class="checklist">
+        <li>arXiv:2603.22106 — From Technical Debt to Cognitive and Intent Debt</li>
+        <li>arXiv:2306.10194 — AI for Technical Debt Management (15-paper SLR)</li>
+      </ul>
+    </div>
+
+    <!-- TOPIC 3 -->
+    <div class="section" id="topic3">
+      <h2>💡 Topic 3 — Agile Transformation: Critical Success Factors</h2>
+      <blockquote>What truly makes or breaks an Agile transformation, and how do organisational factors interact?</blockquote>
+      <ul style="padding-left:20px; font-size:14px; margin-bottom:16px;">
+        <li style="margin-bottom:8px;">CSFs: leadership support, culture change, coaching, tooling</li>
+        <li style="margin-bottom:8px;">Failure clusters: forced adoption, lack of psychological safety, no retrospective culture</li>
+        <li style="margin-bottom:8px;">Underexplored: Agile transformation in Thai/Southeast Asian organisational contexts</li>
+      </ul>
+      <h3>Potential RQ</h3>
+      <blockquote>What are the critical success and failure factors for Agile transformation in specific domain/region, and how do they differ from Western-centric findings?</blockquote>
+      <h3>Papers to Read</h3>
+      <ul class="checklist">
+        <li>Santos et al. (2025) — What Leads to the Success of Agile Transformation Initiatives? DOI: 10.5753/jserd.2025.4502</li>
+        <li>ICSSP 2024 — Breaking Old Habits: Success Factors in SPI</li>
+      </ul>
+    </div>
+
+    <!-- TOPIC 4 -->
+    <div class="section" id="topic4">
+      <h2>💡 Topic 4 — Lean Six Sigma + AI Integration</h2>
+      <blockquote>LSS + IoT + AI is creating "intelligent improvement systems" — what does this mean for software engineering?</blockquote>
+      <ul style="padding-left:20px; font-size:14px; margin-bottom:16px;">
+        <li style="margin-bottom:8px;">DMAIC pipeline augmented with ML bottleneck prediction</li>
+        <li style="margin-bottom:8px;">Real-time IoT sensor data feeding Six Sigma dashboards</li>
+        <li style="margin-bottom:8px;">Agile + LSS fusion gaining traction (2025 research confirms convergence)</li>
+        <li style="margin-bottom:8px;">42.9% turnaround improvement in a 2024 LSS case study</li>
+      </ul>
+      <h3>Potential RQ</h3>
+      <blockquote>How can an AI-enhanced DMAIC model be applied to software development pipelines for continuous, autonomous process correction?</blockquote>
+      <h3>Papers to Read</h3>
+      <ul class="checklist">
+        <li>ResearchGate (2025) — Integration of Agile Methodologies with Lean Six Sigma in SE Projects</li>
+        <li>PEX Report 2025/26</li>
+      </ul>
+    </div>
+
+    <!-- TOPIC 5 -->
+    <div class="section" id="topic5">
+      <h2>💡 Topic 5 — SPI in Global/Distributed Software Development</h2>
+      <blockquote>Human factors, cultural distance, and coordination overhead remain persistent bottlenecks in GSD.</blockquote>
+      <ul style="padding-left:20px; font-size:14px; margin-bottom:16px;">
+        <li style="margin-bottom:8px;">Communication, trust, and time-zone gaps are top cited barriers</li>
+        <li style="margin-bottom:8px;">SPI initiatives in GSD often fail due to "process theater" — frameworks adopted without adapting them</li>
+        <li style="margin-bottom:8px;">Underexplored: GSD + AI-mediated collaboration tools</li>
+      </ul>
+      <h3>Papers to Read</h3>
+      <ul class="checklist">
+        <li>SAC '17 — Hypothetical Framework of Human-Related Success Factors for PI in GSD</li>
+        <li>EuroSPI 2024 proceedings (Munich) — GSD tracks</li>
+      </ul>
+    </div>
+
+    <!-- TOPIC 6 -->
+    <div class="section" id="topic6">
+      <h2>💡 Topic 6 — SPI as Organisational Learning</h2>
+      <blockquote>Repositioning SPI from a "planned activity" to an active, reflective learning process.</blockquote>
+      <ul style="padding-left:20px; font-size:14px; margin-bottom:16px;">
+        <li style="margin-bottom:8px;">Draws on Argyris &amp; Schön double-loop learning theory</li>
+        <li style="margin-bottom:8px;">Retrospectives as knowledge management — not just ceremony</li>
+        <li style="margin-bottom:8px;">Gap: most SPI research treats improvement as a project, not a culture</li>
+      </ul>
+      <h3>Papers to Read</h3>
+      <ul class="checklist">
+        <li>Academia.edu (2025) — SPI as Organizational Learning: An Active Learning Perspective</li>
+      </ul>
+    </div>
+
+    <!-- QUALIFYING EXAM -->
+    <div class="section" id="qualifying">
+      <h2>🎯 Qualifying Exam (2110897)</h2>
+      <p>Must pass within <strong>4 semesters</strong> of starting. Written + oral exam. <strong>Must pass 3 of 5 subjects.</strong></p>
+      <div class="exam-grid">
+        <div class="exam-card">Discrete Mathematics / Structure &amp; Computability</div>
+        <div class="exam-card">Algorithm and Data Structure</div>
+        <div class="exam-card">Computer Architecture &amp; Organization</div>
+        <div class="exam-card">Operating Systems &amp; System Programming</div>
+        <div class="exam-card" style="border-color: var(--accent); border-width:2px;">Software Engineering I &amp; II <br/><small style="color:var(--accent);">→ directly maps to SPI</small></div>
+      </div>
+    </div>
+
+    <!-- COMPREHENSIVE EXAM -->
+    <div class="section" id="comprehensive">
+      <h2>📚 Comprehensive Exam (2110896 — SE Track)</h2>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Code</th><th>Subject</th><th>Format</th></tr>
+          <tr><td>2110623</td><td>Software Requirements Engineering</td><td>Open book</td></tr>
+          <tr><td>2110634</td><td>Software Design &amp; Development</td><td>Closed book</td></tr>
+          <tr><td>2110724</td><td>Software Testing &amp; QA</td><td>Closed book</td></tr>
+          <tr><td>2110722</td><td>Software Project Management</td><td>Open book</td></tr>
+          <tr><td>2110503</td><td>Software Development Practice</td><td>Open book</td></tr>
+          <tr><td>2110646</td><td>UI/UX Design</td><td>Closed book</td></tr>
+          <tr><td>2110727</td><td>Software Evolution &amp; Maintenance</td><td>Open book</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- CONFERENCES -->
+    <div class="section" id="conferences">
+      <h2>🔗 Key Conferences to Target</h2>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Conference</th><th>Focus</th><th>Next Edition</th></tr>
+          <tr><td><strong>PROFES</strong></td><td>Product-focused SPI</td><td>Dec 2025 · Salerno, Italy</td></tr>
+          <tr><td><strong>EuroSPI</strong></td><td>Systems/Software/Services PI</td><td>Sep 2025 · Riga, Latvia</td></tr>
+          <tr><td><strong>CIMPS</strong></td><td>Software Process Improvement</td><td>Oct 2025 · Lima, Peru</td></tr>
+          <tr><td><strong>ICSE-SEIP</strong></td><td>SE in Practice (industrial)</td><td>2026 TBC</td></tr>
+          <tr><td><strong>ICSSP</strong></td><td>Software &amp; Systems Processes</td><td>2025</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- PARKING LOT -->
+    <div class="section" id="parking">
+      <h2>🅿️ Parking Lot</h2>
+      <div class="parking">
+        <p style="font-size:12px; color:var(--muted); margin-bottom:12px; font-family:'JetBrains Mono',monospace;">Half-formed ideas — revisit later</p>
+        <ul>
+          <li>Could a "process health score" be derived from Git activity + CI pipeline telemetry alone?</li>
+          <li>Is there a relationship between CMMI maturity level and AI adoption readiness?</li>
+          <li>How does Thai software industry compare to global SPI adoption benchmarks?</li>
+          <li>Sustainability angle: can SPI reduce energy usage in CI/CD pipelines?</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- LOG -->
+    <div class="section">
+      <h2>📅 Log</h2>
+      <div class="log-entry"><div class="log-date">2026-05-29</div>File created. Initial topic scan from knowledge explorer session.</div>
+      <div class="log-entry"><div class="log-date">2026-05-29</div>Deep dive added: Topic 1 — AI-Augmented SPI (11 sections: 3-lens framework, SPI stack mapping, measurement gap, 4 research directions, thesis framing, reading roadmap, literature questions, topic connections, target journals).</div>
+      <div class="log-entry"><div class="log-date">2026-05-29</div>Goodnotes export version created — clean formatting, tables replacing ASCII diagrams.</div>
+    </div>
+
+    <footer>
+      <span>Chulalongkorn University · PhD Computer Engineering · 2569–2571</span>
+      <span><a href="index.html">← Back to Hub</a></span>
+    </footer>
+
+  </div>
+</body>
+</html>

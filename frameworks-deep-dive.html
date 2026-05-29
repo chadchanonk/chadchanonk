@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Deep Dive: Four SE Frameworks · DORA · SPACE · CMMI · SonarQube</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --surface2: #1c2128;
+      --border: #30363d;
+      --text: #e6edf3;
+      --muted: #7d8590;
+      --dora: #58a6ff;
+      --space: #3fb950;
+      --cmmi: #d29922;
+      --sonar: #f85149;
+      --accent: #58a6ff;
+    }
+    body { font-family: 'IBM Plex Sans', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+
+    /* Top nav */
+    .topnav { background: var(--surface); border-bottom: 1px solid var(--border); padding: 12px 32px; display: flex; align-items: center; gap: 16px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; }
+    .topnav a { color: var(--muted); text-decoration: none; }
+    .topnav a:hover { color: var(--text); }
+    .topnav .sep { color: var(--border); }
+    .topnav .current { color: var(--dora); }
+
+    .container { max-width: 900px; margin: 0 auto; padding: 48px 24px 80px; }
+
+    /* Hero */
+    .hero { margin-bottom: 48px; }
+    .hero-label { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
+    h1 { font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 700; line-height: 1.2; margin-bottom: 12px; }
+    .hero-sub { font-size: 15px; color: var(--muted); }
+    .framework-pills { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+    .pill { padding: 6px 16px; border-radius: 20px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 500; border: 1px solid; }
+    .pill.dora { color: var(--dora); border-color: var(--dora); }
+    .pill.space { color: var(--space); border-color: var(--space); }
+    .pill.cmmi { color: var(--cmmi); border-color: var(--cmmi); }
+    .pill.sonar { color: var(--sonar); border-color: var(--sonar); }
+
+    /* TOC */
+    .toc { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 20px 24px; margin-bottom: 48px; }
+    .toc h3 { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); margin-bottom: 14px; }
+    .toc-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 8px; }
+    .toc-item { padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border); font-size: 13px; }
+    .toc-item a { text-decoration: none; }
+    .toc-item.dora { border-color: var(--dora); } .toc-item.dora a { color: var(--dora); }
+    .toc-item.space { border-color: var(--space); } .toc-item.space a { color: var(--space); }
+    .toc-item.cmmi { border-color: var(--cmmi); } .toc-item.cmmi a { color: var(--cmmi); }
+    .toc-item.sonar { border-color: var(--sonar); } .toc-item.sonar a { color: var(--sonar); }
+    .toc-item.compare a { color: var(--text); }
+
+    /* Framework sections */
+    .fw-section { margin-bottom: 64px; }
+    .fw-header { border-left: 4px solid var(--section-color, var(--accent)); padding-left: 20px; margin-bottom: 32px; }
+    .fw-header .num { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+    .fw-header h2 { font-size: clamp(1.4rem, 3vw, 2rem); font-weight: 700; color: var(--section-color, var(--accent)); }
+    .fw-header p { font-size: 14px; color: var(--muted); margin-top: 6px; }
+
+    .dora-section { --section-color: var(--dora); }
+    .space-section { --section-color: var(--space); }
+    .cmmi-section { --section-color: var(--cmmi); }
+    .sonar-section { --section-color: var(--sonar); }
+
+    h3 { font-size: 1rem; font-weight: 600; margin: 28px 0 12px; font-family: 'IBM Plex Mono', monospace; letter-spacing: 0.03em; color: var(--muted); text-transform: uppercase; font-size: 11px; }
+    h4 { font-size: 14px; font-weight: 600; margin: 20px 0 8px; color: var(--text); }
+    p { margin-bottom: 14px; font-size: 14.5px; }
+
+    /* Tables */
+    .table-wrap { overflow-x: auto; margin: 16px 0; border-radius: 8px; border: 1px solid var(--border); }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th { background: var(--surface2); color: var(--muted); padding: 10px 14px; text-align: left; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; border-bottom: 1px solid var(--border); }
+    td { padding: 10px 14px; border-bottom: 1px solid var(--border); vertical-align: top; color: var(--text); }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--surface2); }
+
+    /* Blockquote */
+    blockquote { border-left: 3px solid var(--section-color, var(--accent)); padding: 12px 20px; margin: 16px 0; background: var(--surface); border-radius: 0 6px 6px 0; font-style: italic; color: var(--muted); font-size: 14px; }
+
+    /* Metric cards */
+    .metric-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin: 16px 0; }
+    .metric-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+    .metric-card .name { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--section-color, var(--accent)); font-weight: 500; margin-bottom: 6px; }
+    .metric-card .desc { font-size: 12px; color: var(--muted); }
+
+    /* Capability list */
+    .cap-group { margin-bottom: 16px; }
+    .cap-group h4 { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--section-color, var(--accent)); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
+    .cap-list { display: flex; flex-wrap: wrap; gap: 6px; }
+    .cap-tag { background: var(--surface); border: 1px solid var(--border); padding: 4px 10px; border-radius: 4px; font-size: 12px; color: var(--text); }
+
+    /* Strengths/Limitations */
+    .sl-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0; }
+    .sl-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+    .sl-box h4 { font-size: 12px; font-family: 'IBM Plex Mono', monospace; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }
+    .sl-box.strengths h4 { color: var(--space); }
+    .sl-box.limits h4 { color: var(--sonar); }
+    .sl-box ul { padding-left: 16px; }
+    .sl-box li { font-size: 12.5px; margin-bottom: 6px; color: var(--muted); }
+
+    /* Industry stars */
+    .industry-tier { margin-bottom: 12px; }
+    .tier-label { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--section-color, var(--accent)); margin-bottom: 8px; }
+
+    /* Comparison */
+    .compare-section { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 24px; margin-bottom: 32px; }
+
+    /* Decision tree */
+    .decision-tree { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 20px 24px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; line-height: 2; color: var(--muted); overflow-x: auto; white-space: pre; }
+
+    /* References */
+    .ref-item { border-bottom: 1px solid var(--border); padding: 10px 0; font-size: 13px; display: grid; grid-template-columns: 30px 1fr auto; gap: 12px; align-items: start; }
+    .ref-num { color: var(--muted); font-family: 'IBM Plex Mono', monospace; font-size: 11px; }
+    .ref-tag { font-family: 'IBM Plex Mono', monospace; font-size: 10px; padding: 2px 6px; border-radius: 2px; white-space: nowrap; }
+    .ref-tag.dora { background: rgba(88,166,255,0.15); color: var(--dora); }
+    .ref-tag.space { background: rgba(63,185,80,0.15); color: var(--space); }
+    .ref-tag.cmmi { background: rgba(210,153,34,0.15); color: var(--cmmi); }
+    .ref-tag.sonar { background: rgba(248,81,73,0.15); color: var(--sonar); }
+    .ref-tag.ai { background: rgba(139,92,246,0.15); color: #a78bfa; }
+
+    footer { margin-top: 64px; padding-top: 24px; border-top: 1px solid var(--border); font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--muted); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+    footer a { color: var(--dora); text-decoration: none; }
+
+    @media (max-width: 600px) { .sl-grid { grid-template-columns: 1fr; } .container { padding: 24px 16px 60px; } }
+  </style>
+</head>
+<body>
+
+  <nav class="topnav">
+    <a href="index.html">← Home</a>
+    <span class="sep">/</span>
+    <span class="current">frameworks-deep-dive</span>
+  </nav>
+
+  <div class="container">
+
+    <div class="hero">
+      <div class="hero-label">🔬 Deep Dive</div>
+      <h1>Four SE Frameworks</h1>
+      <p class="hero-sub">DORA · SPACE · CMMI · SonarQube — Fundamentals, Practices &amp; Industry Recommendations</p>
+      <div class="framework-pills">
+        <span class="pill dora">DORA</span>
+        <span class="pill space">SPACE</span>
+        <span class="pill cmmi">CMMI</span>
+        <span class="pill sonar">SonarQube</span>
+      </div>
+    </div>
+
+    <div class="toc">
+      <h3>Contents</h3>
+      <div class="toc-grid">
+        <div class="toc-item dora"><a href="#dora">1. DORA</a></div>
+        <div class="toc-item space"><a href="#space">2. SPACE</a></div>
+        <div class="toc-item cmmi"><a href="#cmmi">3. CMMI</a></div>
+        <div class="toc-item sonar"><a href="#sonar">4. SonarQube</a></div>
+        <div class="toc-item compare"><a href="#compare">5. Comparison Guide</a></div>
+        <div class="toc-item compare"><a href="#refs">6. References</a></div>
+      </div>
+    </div>
+
+    <!-- DORA -->
+    <div class="fw-section dora-section" id="dora">
+      <div class="fw-header">
+        <div class="num">Framework 01</div>
+        <h2>DORA — DevOps Research and Assessment</h2>
+        <p>Founded 2014 · Google acquired 2018 · Annual State of DevOps Report</p>
+      </div>
+
+      <p>DORA quantifies software delivery performance. The core thesis from <em>Accelerate</em> (2018): <strong>software delivery performance directly predicts organisational performance</strong> — profitability, market share, and productivity.</p>
+
+      <h3>The DORA Four Metrics</h3>
+      <div class="metric-grid">
+        <div class="metric-card"><div class="name">Deployment Frequency</div><div class="desc">How often code is deployed to production</div></div>
+        <div class="metric-card"><div class="name">Lead Time for Changes</div><div class="desc">Commit to production deployment time</div></div>
+        <div class="metric-card"><div class="name">Change Failure Rate</div><div class="desc">% of deployments causing production failures</div></div>
+        <div class="metric-card"><div class="name">MTTR</div><div class="desc">Time to restore service after a failure</div></div>
+      </div>
+
+      <blockquote>Elite performers achieve both high throughput and high stability simultaneously. The old assumption that "speed trades off against quality" is empirically false.</blockquote>
+
+      <h3>Performance Bands</h3>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Tier</th><th>Profile</th></tr>
+          <tr><td><strong style="color:var(--dora)">Elite</strong></td><td>Deploy on-demand; recover in &lt; 1 hour; change failure rate &lt; 5%</td></tr>
+          <tr><td><strong style="color:var(--space)">High</strong></td><td>Deploy weekly–monthly; stable, predictable performance</td></tr>
+          <tr><td><strong style="color:var(--cmmi)">Medium</strong></td><td>Deploying monthly; occasional outages</td></tr>
+          <tr><td><strong style="color:var(--sonar)">Low</strong></td><td>Rare deployments; long recovery times; frequent failures</td></tr>
+        </table>
+      </div>
+      <p style="font-size:13px; color:var(--muted);">In 2023: ~18% Elite · ~23% High · ~44% Medium · ~15% Low</p>
+
+      <h3>24 Capabilities (5 Areas)</h3>
+      <div class="cap-group">
+        <h4>Continuous Delivery</h4>
+        <div class="cap-list">
+          <span class="cap-tag">Version control</span><span class="cap-tag">Deployment automation</span><span class="cap-tag">Continuous integration</span><span class="cap-tag">Trunk-based development</span><span class="cap-tag">Test automation</span><span class="cap-tag">Shift-left security</span><span class="cap-tag">Loosely coupled architecture</span>
+        </div>
+      </div>
+      <div class="cap-group">
+        <h4>Culture</h4>
+        <div class="cap-list">
+          <span class="cap-tag">Generative organisational culture</span><span class="cap-tag">Learning culture</span><span class="cap-tag">Psychological safety</span><span class="cap-tag">Transformational leadership</span>
+        </div>
+      </div>
+
+      <h3>How to Practice DORA</h3>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Step</th><th>Action</th><th>Tools</th></tr>
+          <tr><td>1</td><td>Instrument your pipeline</td><td>GitHub Actions, GitLab CI, Jenkins, PagerDuty</td></tr>
+          <tr><td>2</td><td>Establish a 4–6 week baseline</td><td>LinearB, Faros, Sleuth</td></tr>
+          <tr><td>3</td><td>Value stream mapping</td><td>Identify bottlenecks in lead time</td></tr>
+          <tr><td>4</td><td>Target one metric at a time</td><td>Trunk-based dev, canary deployments, runbooks</td></tr>
+          <tr><td>5</td><td>Run DORA surveys</td><td>Free at dora.dev</td></tr>
+          <tr><td>6</td><td>Review quarterly</td><td>Track trend direction over absolute numbers</td></tr>
+        </table>
+      </div>
+
+      <div class="sl-grid">
+        <div class="sl-box strengths"><h4>✓ Strengths</h4><ul>
+          <li>Empirically validated across 33,000+ professionals</li>
+          <li>Four metrics are simple, objective, and automatable</li>
+          <li>Ties engineering to business outcomes</li>
+          <li>Free survey instrument available at dora.dev</li>
+        </ul></div>
+        <div class="sl-box limits"><h4>✗ Limitations</h4><ul>
+          <li>Measures delivery performance only</li>
+          <li>Can be gamed by low-value deployments</li>
+          <li>Does not address AI-augmented teams</li>
+          <li>MTTR is hard to measure consistently</li>
+        </ul></div>
+      </div>
+    </div>
+
+    <!-- SPACE -->
+    <div class="fw-section space-section" id="space">
+      <div class="fw-header">
+        <div class="num">Framework 02</div>
+        <h2>SPACE — Developer Productivity Framework</h2>
+        <p>Published 2021 · GitHub + Microsoft Research · ACM Queue</p>
+      </div>
+
+      <p>SPACE measures <strong>developer productivity</strong> across 5 dimensions. Core motivation: frustration with one-dimensional productivity measures (lines of code, commits/day) that capture activity but miss what actually matters.</p>
+
+      <h3>The 5 Dimensions</h3>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Dimension</th><th>What It Captures</th><th>Example Metrics</th></tr>
+          <tr><td><strong style="color:var(--space)">S — Satisfaction</strong></td><td>Meaning, burnout, tool satisfaction</td><td>Developer satisfaction score, eNPS, burnout indicators</td></tr>
+          <tr><td><strong style="color:var(--space)">P — Performance</strong></td><td>Outcomes at individual/team/system level</td><td>PR acceptance rate, sprint goal achievement, reliability</td></tr>
+          <tr><td><strong style="color:var(--space)">A — Activity</strong></td><td>Volume of engineering actions</td><td>Commits, PRs, code reviews, deployments</td></tr>
+          <tr><td><strong style="color:var(--space)">C — Communication</strong></td><td>Collaboration quality</td><td>PR review time, onboarding time, documentation quality</td></tr>
+          <tr><td><strong style="color:var(--space)">E — Efficiency</strong></td><td>Minimal interruption and waste</td><td>Build cycle time, meeting load, unplanned work %</td></tr>
+        </table>
+      </div>
+
+      <blockquote>Activity is the most dangerous dimension to over-index on. High activity does not mean high productivity.</blockquote>
+
+      <h3>3 Core Principles</h3>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Principle</th><th>Meaning</th></tr>
+          <tr><td>Productivity is not one-dimensional</td><td>No single metric captures it — measure across all dimensions</td></tr>
+          <tr><td>Measure at multiple levels</td><td>Individual, team, and system levels often diverge</td></tr>
+          <tr><td>Perceptions matter</td><td>Survey data is not soft data — it is essential signal</td></tr>
+        </table>
+      </div>
+
+      <h3>Anti-patterns to Avoid</h3>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Anti-pattern</th><th>What It Looks Like</th><th>Why Harmful</th></tr>
+          <tr><td>Proxy metric fixation</td><td>"Commits per day is our KPI"</td><td>Activity ≠ value; incentivises busy-work</td></tr>
+          <tr><td>Single-level measurement</td><td>Only measuring individual output</td><td>Misses systemic bottlenecks</td></tr>
+          <tr><td>Ignoring wellbeing</td><td>No burnout measurement</td><td>Leads to retention crises</td></tr>
+          <tr><td>Activity as performance</td><td>More PRs = better developers</td><td>Rewards quantity over quality</td></tr>
+        </table>
+      </div>
+
+      <blockquote>SPACE metrics should NEVER be used for individual performance reviews. This destroys psychological safety and causes gaming.</blockquote>
+
+      <div class="sl-grid">
+        <div class="sl-box strengths"><h4>✓ Strengths</h4><ul>
+          <li>Prevents reductive, activity-based measurement</li>
+          <li>Includes developer wellbeing as first-class concern</li>
+          <li>Strong academic foundation (ACM Queue)</li>
+          <li>Applicable to AI-augmented teams</li>
+        </ul></div>
+        <div class="sl-box limits"><h4>✗ Limitations</h4><ul>
+          <li>No standard benchmarks like DORA tiers</li>
+          <li>Survey dimensions require psychological safety</li>
+          <li>No prescribed metric set — inconsistency risk</li>
+          <li>Relatively new (2021); less tooling than DORA</li>
+        </ul></div>
+      </div>
+    </div>
+
+    <!-- CMMI -->
+    <div class="fw-section cmmi-section" id="cmmi">
+      <div class="fw-header">
+        <div class="num">Framework 03</div>
+        <h2>CMMI — Capability Maturity Model Integration</h2>
+        <p>Origin 1987 (CMM) · CMMI V2.0 2018 · V3.0 2023 · CMMI Institute</p>
+      </div>
+
+      <p>CMMI is a <strong>process improvement framework</strong> that defines what practices an organisation should have at each level of process maturity. Originally developed by the SEI at Carnegie Mellon for US DoD software contractors.</p>
+
+      <h3>The 5 Maturity Levels</h3>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Level</th><th>Name</th><th>Characteristic</th></tr>
+          <tr><td><strong style="color:var(--sonar)">1</strong></td><td>Initial</td><td>Unpredictable, poorly controlled, reactive</td></tr>
+          <tr><td><strong style="color:var(--cmmi)">2</strong></td><td>Managed</td><td>Projects planned and tracked; reactive to problems</td></tr>
+          <tr><td><strong style="color:var(--cmmi)">3</strong></td><td>Defined</td><td>Organisation-wide standards; proactive management</td></tr>
+          <tr><td><strong style="color:var(--space)">4</strong></td><td>Quantitatively Managed</td><td>Quantitative quality/performance goals; predictable</td></tr>
+          <tr><td><strong style="color:var(--dora)">5</strong></td><td>Optimising</td><td>Continuous improvement; defect prevention culture</td></tr>
+        </table>
+      </div>
+
+      <h3>Practice Areas (CMMI V2.0)</h3>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Category</th><th>Practice Areas</th></tr>
+          <tr><td><strong style="color:var(--cmmi)">Doing</strong></td><td>Requirements Development (RD), Technical Solution (TS), Product Integration (PI), Verification &amp; Validation (VV)</td></tr>
+          <tr><td><strong style="color:var(--cmmi)">Managing</strong></td><td>Project Planning (PP), Project Monitoring &amp; Control (PMC), Estimating (EST), Risk &amp; Opportunity Management (RSK)</td></tr>
+          <tr><td><strong style="color:var(--cmmi)">Enabling</strong></td><td>Configuration Management (CM), Process Quality Assurance (PQA), Causal Analysis &amp; Resolution (CAR)</td></tr>
+          <tr><td><strong style="color:var(--cmmi)">Improving</strong></td><td>Organisational Process Focus (OPF), Organisational Process Definition (OPD), Organisational Training (OT)</td></tr>
+        </table>
+      </div>
+
+      <blockquote>CMMI appraisals are a significant investment: $200K–$500K+ for a full Level 3 appraisal. Alternative: CMMI scoped appraisal or gap assessment ($10K–$50K).</blockquote>
+
+      <h3>CMMI + AI (2025 Update)</h3>
+      <p>The CMMI AI Working Group (IBM + CMMI Institute, announced April 2025) is integrating GenAI into CMMI practice areas — directly relevant to the PhD research gap on AI-augmented SPI.</p>
+
+      <div class="sl-grid">
+        <div class="sl-box strengths"><h4>✓ Strengths</h4><ul>
+          <li>Most comprehensive process framework available</li>
+          <li>Internationally recognised certification</li>
+          <li>Proven ROI in large-scale regulated environments</li>
+          <li>Being actively extended for AI (CMMI AI WG)</li>
+        </ul></div>
+        <div class="sl-box limits"><h4>✗ Limitations</h4><ul>
+          <li>Very high implementation cost ($200K–$500K+)</li>
+          <li>12–36 months to first appraisal result</li>
+          <li>Can become bureaucratic box-ticking</li>
+          <li>Assumes human-authored artefacts; no AI-actor model yet</li>
+        </ul></div>
+      </div>
+    </div>
+
+    <!-- SONARQUBE -->
+    <div class="fw-section sonar-section" id="sonar">
+      <div class="fw-header">
+        <div class="num">Framework 04</div>
+        <h2>SonarQube — Code Quality &amp; Security Platform</h2>
+        <p>SonarSource · Community (free) + Developer/Enterprise editions · sonarqube.org</p>
+      </div>
+
+      <p>SonarQube is a <strong>static analysis platform</strong> that continuously inspects code quality and security. It integrates into CI/CD pipelines to act as an automated quality gate before code reaches production.</p>
+
+      <h3>The 5 Quality Dimensions</h3>
+      <div class="metric-grid">
+        <div class="metric-card"><div class="name">Bugs</div><div class="desc">Definite errors causing incorrect behavior</div></div>
+        <div class="metric-card"><div class="name">Vulnerabilities</div><div class="desc">Security weaknesses exploitable by attackers</div></div>
+        <div class="metric-card"><div class="name">Code Smells</div><div class="desc">Maintainability issues increasing future change cost</div></div>
+        <div class="metric-card"><div class="name">Coverage</div><div class="desc">% of code exercised by automated tests</div></div>
+        <div class="metric-card"><div class="name">Duplication</div><div class="desc">% of code that is duplicated blocks</div></div>
+      </div>
+
+      <h3>Quality Gates</h3>
+      <p>A Quality Gate is a pass/fail policy applied to every analysis. The default "Sonar Way" gate fails if new code has: any bugs, any vulnerabilities, any security hotspots not reviewed, coverage &lt; 80%, or duplication &gt; 3%.</p>
+
+      <h3>Reliability &amp; Security Ratings</h3>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Rating</th><th>Reliability (Bugs)</th><th>Security (Vulnerabilities)</th></tr>
+          <tr><td><strong style="color:var(--space)">A</strong></td><td>No bugs</td><td>No vulnerabilities</td></tr>
+          <tr><td><strong style="color:var(--space)">B</strong></td><td>At least 1 minor bug</td><td>At least 1 minor vulnerability</td></tr>
+          <tr><td><strong style="color:var(--cmmi)">C</strong></td><td>At least 1 major bug</td><td>At least 1 major vulnerability</td></tr>
+          <tr><td><strong style="color:var(--sonar)">D</strong></td><td>At least 1 critical bug</td><td>At least 1 critical vulnerability</td></tr>
+          <tr><td><strong style="color:var(--sonar)">E</strong></td><td>At least 1 blocker bug</td><td>At least 1 blocker vulnerability</td></tr>
+        </table>
+      </div>
+
+      <div class="sl-grid">
+        <div class="sl-box strengths"><h4>✓ Strengths</h4><ul>
+          <li>1–3 days to first value — fastest of all four frameworks</li>
+          <li>CI/CD integration acts as automated quality gate</li>
+          <li>Supports 30+ languages</li>
+          <li>Free Community Edition covers most use cases</li>
+        </ul></div>
+        <div class="sl-box limits"><h4>✗ Limitations</h4><ul>
+          <li>Static analysis only — misses runtime behavior</li>
+          <li>No measurement of cognitive or intent debt</li>
+          <li>Coverage metrics can be gamed by shallow tests</li>
+          <li>Misses semantic/intent issues in AI-generated code</li>
+        </ul></div>
+      </div>
+    </div>
+
+    <!-- COMPARISON -->
+    <div id="compare">
+      <h2 style="font-size:1.4rem; margin-bottom:24px; padding-bottom:12px; border-bottom:1px solid var(--border);">5. Framework Comparison &amp; Selection Guide</h2>
+
+      <div class="table-wrap">
+        <table>
+          <tr><th>Dimension</th><th style="color:var(--dora)">DORA</th><th style="color:var(--space)">SPACE</th><th style="color:var(--cmmi)">CMMI</th><th style="color:var(--sonar)">SonarQube</th></tr>
+          <tr><td>Primary Focus</td><td>Delivery pipeline</td><td>Developer productivity</td><td>Process maturity</td><td>Code quality &amp; security</td></tr>
+          <tr><td>Effort to Implement</td><td>Low–Medium</td><td>Medium</td><td>Very High</td><td>Low</td></tr>
+          <tr><td>Cost</td><td>Free + tooling</td><td>Free + tooling</td><td>$200K–$500K+</td><td>Free / $150+/dev/yr</td></tr>
+          <tr><td>Time to First Value</td><td>2–4 weeks</td><td>4–8 weeks</td><td>12–36 months</td><td>1–3 days</td></tr>
+          <tr><td>Measurement Type</td><td>Objective (logs)</td><td>Objective + surveys</td><td>Qualitative appraisal</td><td>Objective (static)</td></tr>
+        </table>
+      </div>
+
+      <h3 style="margin-top:28px;">Decision Tree</h3>
+      <div class="decision-tree">Need government/defence certification?
+  YES → CMMI Level 3+ required
+  NO  → Continue ↓
+
+Primary concern: how fast and reliably you ship?
+  YES → Start with DORA
+  NO  → Continue ↓
+
+Primary concern: developer wellbeing / retention?
+  YES → Use SPACE (pair with DORA)
+  NO  → Continue ↓
+
+Primary concern: code quality, security, or debt?
+  YES → Deploy SonarQube immediately
+  NO  → Continue ↓
+
+Building a comprehensive improvement program?
+  YES → All four in sequence:
+        1. SonarQube  (immediate code quality baseline)
+        2. DORA       (delivery performance baseline)
+        3. SPACE      (developer experience baseline)
+        4. CMMI       (if scale/regulation demands it)</div>
+
+      <h3 style="margin-top:28px;">Framework Fit by Team Size</h3>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Team Size</th><th>Recommended</th></tr>
+          <tr><td>1–5 developers</td><td>SonarQube only</td></tr>
+          <tr><td>6–20 developers</td><td>SonarQube + DORA</td></tr>
+          <tr><td>21–100 developers</td><td>SonarQube + DORA + SPACE</td></tr>
+          <tr><td>100–500 developers</td><td>All four; selective CMMI capability levels</td></tr>
+          <tr><td>500+ / regulated</td><td>All four; full CMMI maturity appraisal</td></tr>
+        </table>
+      </div>
+
+      <h3 style="margin-top:28px;">For Your PhD Research</h3>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Research Direction</th><th>Most Relevant</th><th>Gap / Angle</th></tr>
+          <tr><td>AI-Aware Metric Suite</td><td>DORA + SPACE</td><td>Neither designed for AI-generated code</td></tr>
+          <tr><td>Process Model with AI as Actor</td><td>CMMI + DORA</td><td>CMMI V3 addressing this; empirical evidence needed</td></tr>
+          <tr><td>AI-SPI Adoption in ASEAN</td><td>All four</td><td>Baseline data on Thai/SEA adoption is sparse</td></tr>
+          <tr><td>Technical Debt in AI Code</td><td>SonarQube + SPACE</td><td>SonarQube doesn't detect cognitive/intent debt</td></tr>
+          <tr><td>Governance for AI-Driven SPI</td><td>CMMI + ISO 42001</td><td>AI as process actor in CMMI is an open design problem</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- REFERENCES -->
+    <div class="fw-section" id="refs" style="margin-top:48px;">
+      <h2 style="font-size:1.4rem; margin-bottom:24px; padding-bottom:12px; border-bottom:1px solid var(--border);">7. Key References</h2>
+      <div class="ref-item"><span class="ref-num">01</span><span>Forsgren, Humble, Kim (2018). <em>Accelerate</em>. IT Revolution.</span><span class="ref-tag dora">DORA</span></div>
+      <div class="ref-item"><span class="ref-num">02</span><span>DORA State of DevOps Report (2023). dora.dev</span><span class="ref-tag dora">DORA</span></div>
+      <div class="ref-item"><span class="ref-num">03</span><span>Forsgren et al. (2021). <em>The SPACE of Developer Productivity</em>. ACM Queue 19(1).</span><span class="ref-tag space">SPACE</span></div>
+      <div class="ref-item"><span class="ref-num">04</span><span>Storey &amp; Zimmermann (2022). arXiv:2205.00301.</span><span class="ref-tag space">SPACE</span></div>
+      <div class="ref-item"><span class="ref-num">05</span><span>Chrissis, Konrad, Shrum (2011). <em>CMMI for Development v1.3</em>. Addison-Wesley.</span><span class="ref-tag cmmi">CMMI</span></div>
+      <div class="ref-item"><span class="ref-num">06</span><span>CMMI Institute (2018). <em>CMMI V2.0 Model Overview</em>.</span><span class="ref-tag cmmi">CMMI</span></div>
+      <div class="ref-item"><span class="ref-num">07</span><span>ISACA (April 2025). <em>IBM Joins CMMI AI Working Group</em>.</span><span class="ref-tag cmmi">CMMI</span></div>
+      <div class="ref-item"><span class="ref-num">08</span><span>Campbell &amp; Papapetrou (2013). <em>SonarQube in Action</em>. Manning.</span><span class="ref-tag sonar">SonarQube</span></div>
+      <div class="ref-item"><span class="ref-num">09</span><span>SonarSource (2023). <em>SonarQube Documentation</em>. docs.sonarqube.org</span><span class="ref-tag sonar">SonarQube</span></div>
+      <div class="ref-item"><span class="ref-num">10</span><span>GitClear (2025). <em>Coding on Copilot: 2025 Data</em>.</span><span class="ref-tag ai">AI</span></div>
+    </div>
+
+    <footer>
+      <span>Chulalongkorn University · PhD Computer Engineering · 2569–2571 · Last Updated: May 29, 2026</span>
+      <span><a href="index.html">← Back to Hub</a></span>
+    </footer>
+
+  </div>
+</body>
+</html>
