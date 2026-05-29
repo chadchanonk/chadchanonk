@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Process Improvement × Software Engineering — Research Knowledge Base</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=JetBrains+Mono:wght@400;600&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #0b0f1a;
+    --surface: #111827;
+    --surface2: #1a2235;
+    --border: #1e2d47;
+    --accent1: #38bdf8;
+    --accent2: #f472b6;
+    --accent3: #34d399;
+    --accent4: #fbbf24;
+    --accent5: #a78bfa;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --tag-bg: rgba(56,189,248,0.1);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Outfit', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Header */
+  header {
+    position: relative;
+    padding: 3rem 2rem 2rem;
+    border-bottom: 1px solid var(--border);
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    top: -60px; left: -60px;
+    width: 320px; height: 320px;
+    background: radial-gradient(circle, rgba(56,189,248,0.12) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: -80px; right: -40px;
+    width: 260px; height: 260px;
+    background: radial-gradient(circle, rgba(244,114,182,0.10) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+  .header-inner { max-width: 1100px; margin: 0 auto; position: relative; z-index: 1; }
+  .overline {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--accent1);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+  }
+  h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2rem, 5vw, 3.4rem);
+    line-height: 1.12;
+    color: #f8fafc;
+    max-width: 640px;
+  }
+  h1 em { font-style: italic; color: var(--accent1); }
+  .subtitle {
+    margin-top: 1rem;
+    font-size: 1rem;
+    color: var(--muted);
+    font-weight: 300;
+    max-width: 540px;
+    line-height: 1.6;
+  }
+  .meta-pills {
+    margin-top: 1.5rem;
+    display: flex; flex-wrap: wrap; gap: 0.5rem;
+  }
+  .pill {
+    font-size: 0.72rem;
+    font-family: 'JetBrains Mono', monospace;
+    padding: 0.28rem 0.75rem;
+    border-radius: 999px;
+    border: 1px solid;
+    letter-spacing: 0.05em;
+  }
+  .pill-blue  { border-color: var(--accent1); color: var(--accent1); background: rgba(56,189,248,0.07); }
+  .pill-pink  { border-color: var(--accent2); color: var(--accent2); background: rgba(244,114,182,0.07); }
+  .pill-green { border-color: var(--accent3); color: var(--accent3); background: rgba(52,211,153,0.07); }
+  .pill-yellow{ border-color: var(--accent4); color: var(--accent4); background: rgba(251,191,36,0.07); }
+  .pill-purple{ border-color: var(--accent5); color: var(--accent5); background: rgba(167,139,250,0.07); }
+
+  /* Nav tabs */
+  nav {
+    max-width: 1100px; margin: 0 auto;
+    padding: 1.5rem 2rem 0;
+    display: flex; gap: 0.25rem; flex-wrap: wrap;
+  }
+  .tab {
+    padding: 0.55rem 1.1rem;
+    font-size: 0.82rem;
+    font-weight: 500;
+    border: 1px solid var(--border);
+    border-bottom: none;
+    border-radius: 8px 8px 0 0;
+    background: var(--surface);
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.18s;
+    letter-spacing: 0.02em;
+  }
+  .tab:hover { color: var(--text); border-color: var(--accent1); }
+  .tab.active { background: var(--surface2); color: var(--accent1); border-color: var(--accent1); }
+
+  /* Main content */
+  main {
+    max-width: 1100px; margin: 0 auto;
+    padding: 0 2rem 4rem;
+  }
+  .panel {
+    display: none;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 0 8px 8px 8px;
+    padding: 2rem;
+    animation: fadeUp 0.3s ease both;
+  }
+  .panel.active { display: block; }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Section titles inside panels */
+  .section-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.5rem;
+    color: #f8fafc;
+    margin-bottom: 0.4rem;
+  }
+  .section-desc {
+    font-size: 0.88rem;
+    color: var(--muted);
+    line-height: 1.6;
+    margin-bottom: 1.8rem;
+    max-width: 700px;
+  }
+
+  /* Card grid */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+    gap: 1.2rem;
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.4rem;
+    transition: border-color 0.2s, transform 0.2s;
+    cursor: default;
+    position: relative;
+    overflow: hidden;
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--c, var(--accent1));
+    border-radius: 12px 12px 0 0;
+    opacity: 0.7;
+  }
+  .card:hover { border-color: var(--c, var(--accent1)); transform: translateY(-2px); }
+  .card-icon { font-size: 1.6rem; margin-bottom: 0.75rem; }
+  .card-title {
+    font-weight: 600;
+    font-size: 0.97rem;
+    margin-bottom: 0.4rem;
+    color: #f1f5f9;
+  }
+  .card-body {
+    font-size: 0.82rem;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+  .card-tags { margin-top: 0.9rem; display: flex; flex-wrap: wrap; gap: 0.35rem; }
+  .ctag {
+    font-size: 0.65rem;
+    font-family: 'JetBrains Mono', monospace;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    background: var(--tag-bg);
+    color: var(--accent1);
+    letter-spacing: 0.04em;
+  }
+
+  /* Timeline */
+  .timeline { position: relative; padding-left: 1.5rem; }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 6px; top: 6px; bottom: 6px;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--accent1), var(--accent2), var(--accent5));
+    border-radius: 2px;
+    opacity: 0.4;
+  }
+  .tl-item {
+    position: relative;
+    margin-bottom: 1.8rem;
+    padding-left: 1.4rem;
+  }
+  .tl-item::before {
+    content: '';
+    position: absolute;
+    left: -1.48rem; top: 5px;
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--c2, var(--accent1));
+    box-shadow: 0 0 8px var(--c2, var(--accent1));
+  }
+  .tl-year {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--c2, var(--accent1));
+    letter-spacing: 0.1em;
+    margin-bottom: 0.2rem;
+  }
+  .tl-name { font-weight: 600; font-size: 0.97rem; color: #f1f5f9; margin-bottom: 0.25rem; }
+  .tl-desc { font-size: 0.82rem; color: var(--muted); line-height: 1.6; }
+
+  /* Two-column layout */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.4rem; }
+  @media (max-width: 680px) { .two-col { grid-template-columns: 1fr; } }
+
+  /* Insight block */
+  .insight {
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--c3, var(--accent3));
+    background: var(--surface);
+    border-radius: 0 10px 10px 0;
+    padding: 1rem 1.2rem;
+    margin-bottom: 1rem;
+  }
+  .insight-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    color: var(--c3, var(--accent3));
+    text-transform: uppercase;
+    margin-bottom: 0.35rem;
+  }
+  .insight-text { font-size: 0.86rem; color: var(--text); line-height: 1.6; }
+  .insight-stat {
+    font-family: 'DM Serif Display', serif;
+    font-size: 2rem;
+    color: var(--c3, var(--accent3));
+    margin-top: 0.2rem;
+  }
+
+  /* Table */
+  table { width: 100%; border-collapse: collapse; font-size: 0.83rem; }
+  th {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 0.6rem 0.8rem;
+    border-bottom: 1px solid var(--border);
+    text-align: left;
+  }
+  td { padding: 0.7rem 0.8rem; border-bottom: 1px solid var(--border); color: var(--text); vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(255,255,255,0.02); }
+  .badge {
+    display: inline-block;
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.68rem;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* Ref list */
+  .ref-item {
+    display: flex; gap: 1rem;
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .ref-item:last-child { border-bottom: none; }
+  .ref-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--accent1);
+    min-width: 2rem;
+    margin-top: 0.1rem;
+  }
+  .ref-title { font-weight: 500; font-size: 0.88rem; color: #f1f5f9; margin-bottom: 0.2rem; }
+  .ref-meta { font-size: 0.78rem; color: var(--muted); line-height: 1.5; }
+  .ref-link {
+    display: inline-block;
+    margin-top: 0.3rem;
+    font-size: 0.73rem;
+    color: var(--accent1);
+    text-decoration: none;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .ref-link:hover { text-decoration: underline; }
+
+  h3 { font-family: 'DM Serif Display', serif; font-size: 1.1rem; color: #f1f5f9; margin: 1.4rem 0 0.6rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <p class="overline">Knowledge Explorer · Research Area</p>
+    <h1>Process Improvement<br/><em>&amp; Software Engineering</em></h1>
+    <p class="subtitle">A curated reference spanning methodologies, frameworks, emerging research, and key findings shaping how software teams improve continuously.</p>
+    <div class="meta-pills">
+      <span class="pill pill-blue">CMMI · SPICE · ISO</span>
+      <span class="pill pill-pink">Agile · Scrum · SAFe</span>
+      <span class="pill pill-green">Lean · Six Sigma · TQM</span>
+      <span class="pill pill-yellow">DevOps · CI/CD</span>
+      <span class="pill pill-purple">AI-Augmented SPI</span>
+    </div>
+  </div>
+</header>
+
+<nav id="tabs">
+  <button class="tab active" onclick="show('overview',this)">Overview</button>
+  <button class="tab" onclick="show('frameworks',this)">Frameworks</button>
+  <button class="tab" onclick="show('research',this)">Research Trends</button>
+  <button class="tab" onclick="show('timeline',this)">History</button>
+  <button class="tab" onclick="show('ai',this)">AI & SPI</button>
+  <button class="tab" onclick="show('refs',this)">References</button>
+</nav>
+
+<main>
+
+<!-- ══════════ OVERVIEW ══════════ -->
+<div class="panel active" id="overview">
+  <p class="section-title">What is Process Improvement in SE?</p>
+  <p class="section-desc">Software Process Improvement (SPI) is the discipline of systematically analysing, measuring, and enhancing the practices used to build software — from requirements gathering through deployment and maintenance. Research in this area bridges empirical software engineering, organisational management, and quality science.</p>
+
+  <div class="card-grid">
+    <div class="card" style="--c: #38bdf8">
+      <div class="card-icon">🎯</div>
+      <div class="card-title">Core Objective</div>
+      <div class="card-body">Reduce defects, cycle time, and cost while increasing predictability, quality, and developer experience across the SDLC.</div>
+      <div class="card-tags"><span class="ctag">Quality</span><span class="ctag">Efficiency</span><span class="ctag">Predictability</span></div>
+    </div>
+    <div class="card" style="--c: #f472b6">
+      <div class="card-icon">🔬</div>
+      <div class="card-title">Research Methods</div>
+      <div class="card-body">Case studies, systematic literature reviews, controlled experiments, action research, and large-scale surveys of industry practices.</div>
+      <div class="card-tags"><span class="ctag">Empirical SE</span><span class="ctag">SLR</span><span class="ctag">Action Research</span></div>
+    </div>
+    <div class="card" style="--c: #34d399">
+      <div class="card-icon">🏛️</div>
+      <div class="card-title">Key Conferences</div>
+      <div class="card-body">PROFES, EuroSPI, ICSE-SEIP, CIMPS — providing premier forums for SE process researchers and practitioners worldwide.</div>
+      <div class="card-tags"><span class="ctag">PROFES 2024</span><span class="ctag">EuroSPI 2024</span><span class="ctag">CIMPS 2025</span></div>
+    </div>
+    <div class="card" style="--c: #fbbf24">
+      <div class="card-icon">📈</div>
+      <div class="card-title">Industry Adoption</div>
+      <div class="card-body">2025 PEX Report: Lean (40%), Agile (39%), Six Sigma (28%), TQM/TPM (22%), Gemba Kaizen (16%) — classic methods still lead transformation.</div>
+      <div class="card-tags"><span class="ctag">Lean</span><span class="ctag">Agile</span><span class="ctag">Six Sigma</span></div>
+    </div>
+    <div class="card" style="--c: #a78bfa">
+      <div class="card-icon">🤖</div>
+      <div class="card-title">Emerging Frontier</div>
+      <div class="card-body">AI-powered analytics, LLMs for code review, automated refactoring, and predictive defect detection are reshaping what SPI means at scale.</div>
+      <div class="card-tags"><span class="ctag">GenAI</span><span class="ctag">LLM</span><span class="ctag">Automation</span></div>
+    </div>
+    <div class="card" style="--c: #38bdf8">
+      <div class="card-icon">⚙️</div>
+      <div class="card-title">Technical Debt</div>
+      <div class="card-body">A critical SPI concern: AI now both generates and manages TD. 92% of US developers use AI assistants, yet AI-generated code shows 8× increase in code duplication.</div>
+      <div class="card-tags"><span class="ctag">Tech Debt</span><span class="ctag">Maintainability</span><span class="ctag">AI Code</span></div>
+    </div>
+  </div>
+
+  <h3>Why it matters in 2025</h3>
+  <div class="two-col">
+    <div class="insight" style="--c3: #38bdf8">
+      <div class="insight-label">AI Code Share</div>
+      <div class="insight-stat">20%+</div>
+      <div class="insight-text">Google and Microsoft both reported in 2025 that AI now writes over 20% of their new code — fundamentally changing what "process improvement" means.</div>
+    </div>
+    <div class="insight" style="--c3: #f472b6">
+      <div class="insight-label">Developer AI Adoption</div>
+      <div class="insight-stat">92%</div>
+      <div class="insight-text">Of US developers now employ AI coding assistants in their workflow (GitHub 2025 survey), requiring new process guardrails and quality frameworks.</div>
+    </div>
+    <div class="insight" style="--c3: #34d399">
+      <div class="insight-label">Lean Admin Efficiency (case study)</div>
+      <div class="insight-stat">42.9%</div>
+      <div class="insight-text">A 2024 study applying Lean Six Sigma to online learning reduced administrative turnaround times by 42.9% and improved quality ratings.</div>
+    </div>
+    <div class="insight" style="--c3: #fbbf24">
+      <div class="insight-label">AI Problem-Solving (SWE-bench)</div>
+      <div class="insight-stat">69.1%</div>
+      <div class="insight-text">AI improvement in benchmark problem-solving success climbed from 4.4% in 2023 to 69.1% in 2025 — but quality risks scale equally fast.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ FRAMEWORKS ══════════ -->
+<div class="panel" id="frameworks">
+  <p class="section-title">Frameworks & Methodologies</p>
+  <p class="section-desc">The field spans maturity models, agile methods, quality management systems, and engineering-specific process frameworks — often applied in combination.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Framework</th>
+        <th>Category</th>
+        <th>Core Focus</th>
+        <th>Scope</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>CMMI v3</strong></td>
+        <td><span class="badge" style="background:rgba(56,189,248,0.12);color:#38bdf8">Maturity Model</span></td>
+        <td>Process capability measurement and improvement across 5 maturity levels</td>
+        <td>Enterprise</td>
+      </tr>
+      <tr>
+        <td><strong>ISO/IEC 33000 (SPICE)</strong></td>
+        <td><span class="badge" style="background:rgba(56,189,248,0.12);color:#38bdf8">Standard</span></td>
+        <td>Process assessment model aligned with ISO 15504; 6-level capability scale</td>
+        <td>Enterprise</td>
+      </tr>
+      <tr>
+        <td><strong>Scrum / SAFe</strong></td>
+        <td><span class="badge" style="background:rgba(244,114,182,0.12);color:#f472b6">Agile</span></td>
+        <td>Iterative delivery, Sprint Retrospectives, scaled agile coordination</td>
+        <td>Team / Portfolio</td>
+      </tr>
+      <tr>
+        <td><strong>Kanban</strong></td>
+        <td><span class="badge" style="background:rgba(244,114,182,0.12);color:#f472b6">Agile / Flow</span></td>
+        <td>Visual workflow, WIP limits, throughput optimisation, cycle time reduction</td>
+        <td>Team</td>
+      </tr>
+      <tr>
+        <td><strong>Lean / TPS</strong></td>
+        <td><span class="badge" style="background:rgba(52,211,153,0.12);color:#34d399">Lean</span></td>
+        <td>Waste elimination, value stream mapping, pull systems, Kaizen culture</td>
+        <td>Team / Org</td>
+      </tr>
+      <tr>
+        <td><strong>Six Sigma / DMAIC</strong></td>
+        <td><span class="badge" style="background:rgba(52,211,153,0.12);color:#34d399">Quality</span></td>
+        <td>Statistical defect reduction: Define → Measure → Analyse → Improve → Control</td>
+        <td>Org</td>
+      </tr>
+      <tr>
+        <td><strong>Lean Six Sigma (LSS)</strong></td>
+        <td><span class="badge" style="background:rgba(52,211,153,0.12);color:#34d399">Hybrid</span></td>
+        <td>Combines waste-reduction (Lean) with defect-reduction (Six Sigma) — increasingly integrated with AI analytics in 2025</td>
+        <td>Enterprise</td>
+      </tr>
+      <tr>
+        <td><strong>DevOps / DevSecOps</strong></td>
+        <td><span class="badge" style="background:rgba(251,191,36,0.12);color:#fbbf24">Engineering</span></td>
+        <td>CI/CD pipelines, shift-left security, automated testing, feedback loops</td>
+        <td>Team / Platform</td>
+      </tr>
+      <tr>
+        <td><strong>CI/CD (Continuous Improvement)</strong></td>
+        <td><span class="badge" style="background:rgba(251,191,36,0.12);color:#fbbf24">Engineering</span></td>
+        <td>Automated build-test-deploy, frequent releases, rapid feedback</td>
+        <td>Team</td>
+      </tr>
+      <tr>
+        <td><strong>TQM / PDCA</strong></td>
+        <td><span class="badge" style="background:rgba(167,139,250,0.12);color:#a78bfa">Quality</span></td>
+        <td>Plan-Do-Check-Act cycle; culture-wide quality ownership</td>
+        <td>Org</td>
+      </tr>
+      <tr>
+        <td><strong>5S</strong></td>
+        <td><span class="badge" style="background:rgba(167,139,250,0.12);color:#a78bfa">Lean</span></td>
+        <td>Sort, Set in order, Shine, Standardise, Sustain — workspace/codebase discipline</td>
+        <td>Team</td>
+      </tr>
+      <tr>
+        <td><strong>GSD (Global Software Development)</strong></td>
+        <td><span class="badge" style="background:rgba(56,189,248,0.12);color:#38bdf8">Organisational</span></td>
+        <td>Human factors, coordination, success factors for distributed improvement</td>
+        <td>Enterprise</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Framework Relationships</h3>
+  <p class="section-desc" style="margin-bottom:1rem">Modern organisations rarely apply one framework alone. Common fusions include Agile + CMMI for regulated industries, Lean Six Sigma + DevOps for platform engineering, and CMMI + AI tooling via IBM and CMMI Institute's 2025 AI Working Group.</p>
+  <div class="card-grid">
+    <div class="card" style="--c: #34d399">
+      <div class="card-title">Agile + LSS Fusion</div>
+      <div class="card-body">Research confirms Lean Six Sigma and Agile are merging to increase responsiveness, adaptability, and customer focus — creating "intelligent improvement systems."</div>
+      <div class="card-tags"><span class="ctag">Hybrid</span><span class="ctag">2025 Trend</span></div>
+    </div>
+    <div class="card" style="--c: #fbbf24">
+      <div class="card-title">CMMI + AI (2025)</div>
+      <div class="card-body">IBM joined the CMMI Institute's AI Working Group in 2025, integrating RPA, ML, GenAI, and DevSecOps into CMMI practice areas.</div>
+      <div class="card-tags"><span class="ctag">CMMI v3</span><span class="ctag">GenAI</span><span class="ctag">DevSecOps</span></div>
+    </div>
+    <div class="card" style="--c: #a78bfa">
+      <div class="card-title">LSS + IoT / Hyperautomation</div>
+      <div class="card-body">Real-time IoT sensor data feeding into Six Sigma dashboards enables precision monitoring and autonomous process corrections at scale.</div>
+      <div class="card-tags"><span class="ctag">IoT</span><span class="ctag">RPA</span><span class="ctag">Automation</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ RESEARCH TRENDS ══════════ -->
+<div class="panel" id="research">
+  <p class="section-title">Active Research Themes (2024–2026)</p>
+  <p class="section-desc">Leading conferences (PROFES, EuroSPI, ICSE-SEIP) and journals are concentrating on these interconnected research threads.</p>
+
+  <div class="card-grid">
+    <div class="card" style="--c: #38bdf8">
+      <div class="card-icon">🧠</div>
+      <div class="card-title">AI-Augmented SPI</div>
+      <div class="card-body">Using machine learning and GenAI to predict process bottlenecks, detect defect patterns, automate retrospectives, and personalise improvement recommendations.</div>
+      <div class="card-tags"><span class="ctag">ML</span><span class="ctag">LLM</span><span class="ctag">Predictive</span></div>
+    </div>
+    <div class="card" style="--c: #f472b6">
+      <div class="card-icon">💸</div>
+      <div class="card-title">Technical Debt Management</div>
+      <div class="card-body">AI tools now detect SATD (Self-Admitted Technical Debt), automate refactoring (Refact.ai, OpenRewrite), and map risk via historical churn and coupling data.</div>
+      <div class="card-tags"><span class="ctag">SATD</span><span class="ctag">Refactoring</span><span class="ctag">Code Quality</span></div>
+    </div>
+    <div class="card" style="--c: #34d399">
+      <div class="card-icon">🔄</div>
+      <div class="card-title">Agile Transformation Success Factors</div>
+      <div class="card-body">Research published in 2025 identifies CSFs for Agile adoption: leadership support, culture change, training, tooling. Failure modes cluster around forced adoption and lack of coaching.</div>
+      <div class="card-tags"><span class="ctag">Agile CSF</span><span class="ctag">Culture</span><span class="ctag">SLR</span></div>
+    </div>
+    <div class="card" style="--c: #fbbf24">
+      <div class="card-icon">🌐</div>
+      <div class="card-title">Global Software Development</div>
+      <div class="card-body">Human factors in cross-cultural distributed teams remain a major SPI challenge. Systematic reviews highlight communication, trust, and time-zone management as persistent bottlenecks.</div>
+      <div class="card-tags"><span class="ctag">GSD</span><span class="ctag">Human Factors</span><span class="ctag">Distributed</span></div>
+    </div>
+    <div class="card" style="--c: #a78bfa">
+      <div class="card-icon">🔐</div>
+      <div class="card-title">Safety, Security & Functional Safety</div>
+      <div class="card-body">EuroSPI 2024 dedicated tracks to SPI × Functional Safety and Cybersecurity, reflecting demand for process frameworks in safety-critical and automotive software.</div>
+      <div class="card-tags"><span class="ctag">ISO 26262</span><span class="ctag">DevSecOps</span><span class="ctag">AUTOSAR</span></div>
+    </div>
+    <div class="card" style="--c: #38bdf8">
+      <div class="card-icon">♻️</div>
+      <div class="card-title">Sustainability & Life-Cycle</div>
+      <div class="card-body">EuroSPI 2024 Part II focused on sustainability challenges in software life-cycle management — green software engineering and e-mobility digitalisation processes.</div>
+      <div class="card-tags"><span class="ctag">Green SE</span><span class="ctag">Sustainability</span><span class="ctag">E-Mobility</span></div>
+    </div>
+    <div class="card" style="--c: #f472b6">
+      <div class="card-icon">📊</div>
+      <div class="card-title">Measurement & Metrics</div>
+      <div class="card-body">New metrics for AI-generated code quality (BLEU-diff, LEMOD), developer productivity measurement (DORA, SPACE), and SPI outcome tracking dominate empirical research.</div>
+      <div class="card-tags"><span class="ctag">DORA</span><span class="ctag">SPACE</span><span class="ctag">BLEU-diff</span></div>
+    </div>
+    <div class="card" style="--c: #34d399">
+      <div class="card-icon">🎓</div>
+      <div class="card-title">SPI as Organisational Learning</div>
+      <div class="card-body">Recent research repositions SPI from a "planned activity" to an active learning process — drawing on organisational learning theory and reflective practice frameworks.</div>
+      <div class="card-tags"><span class="ctag">Org Learning</span><span class="ctag">Kaizen</span><span class="ctag">Retrospectives</span></div>
+    </div>
+  </div>
+
+  <h3>Key Research Findings</h3>
+  <div class="insight" style="--c3: #f472b6">
+    <div class="insight-label">Technical Debt Paradox (2025)</div>
+    <div class="insight-text">AI systems may reduce traditional technical debt through automated refactoring while simultaneously accelerating "cognitive debt" and "intent debt" — where code works but teams no longer understand why it was built that way. (arXiv 2603.22106)</div>
+  </div>
+  <div class="insight" style="--c3: #38bdf8">
+    <div class="insight-label">AI Code Quality Risk</div>
+    <div class="insight-text">GitClear's 2025 report documents an eightfold increase in duplicated code blocks since widespread AI coding adoption — a clear maintainability warning signal for SPI researchers.</div>
+  </div>
+  <div class="insight" style="--c3: #34d399">
+    <div class="insight-label">Financial Sector Case Study</div>
+    <div class="insight-text">A global financial services firm deploying AI-powered code analysis achieved a 25% improvement in developer efficiency and significant reduction in system outages through proactive technical debt management.</div>
+  </div>
+  <div class="insight" style="--c3: #a78bfa">
+    <div class="insight-label">Experienced Developer Productivity</div>
+    <div class="insight-text">Research indicates AI-assisted programming can decrease experienced developer productivity by increasing technical debt and maintenance burden, despite perceived short-term speed gains. (arXiv 2510.10165)</div>
+  </div>
+</div>
+
+<!-- ══════════ TIMELINE ══════════ -->
+<div class="panel" id="timeline">
+  <p class="section-title">Historical Timeline of SPI</p>
+  <p class="section-desc">Key milestones in the evolution of Software Process Improvement — from foundational quality science to the AI-augmented era.</p>
+
+  <div class="two-col">
+    <div class="timeline">
+      <div class="tl-item" style="--c2: #38bdf8">
+        <div class="tl-year">1950s–60s</div>
+        <div class="tl-name">Quality Science Foundations</div>
+        <div class="tl-desc">Deming, Juran, and Crosby establish Statistical Process Control, PDCA cycle, and quality cost models — later adopted by software engineering.</div>
+      </div>
+      <div class="tl-item" style="--c2: #34d399">
+        <div class="tl-year">1962</div>
+        <div class="tl-name">Toyota Production System (TPS)</div>
+        <div class="tl-desc">Toyota formalises Lean manufacturing, Kanban, and the Kaizen philosophy — foundations of modern software flow management.</div>
+      </div>
+      <div class="tl-item" style="--c2: #fbbf24">
+        <div class="tl-year">1986</div>
+        <div class="tl-name">Six Sigma — Motorola</div>
+        <div class="tl-desc">Motorola formalises Six Sigma. GE, then software organisations, adopt DMAIC as a structured defect-reduction discipline.</div>
+      </div>
+      <div class="tl-item" style="--c2: #f472b6">
+        <div class="tl-year">1991</div>
+        <div class="tl-name">CMM (Capability Maturity Model)</div>
+        <div class="tl-desc">SEI releases the CMM for software. The 5-level maturity model becomes the dominant SPI framework for large software organisations globally.</div>
+      </div>
+      <div class="tl-item" style="--c2: #a78bfa">
+        <div class="tl-year">1995</div>
+        <div class="tl-name">ISO/IEC 15504 (SPICE)</div>
+        <div class="tl-desc">International standard for software process assessment, enabling cross-border SPI comparability and audit frameworks.</div>
+      </div>
+      <div class="tl-item" style="--c2: #38bdf8">
+        <div class="tl-year">2001</div>
+        <div class="tl-name">Agile Manifesto</div>
+        <div class="tl-desc">12 principles shift the SPI conversation from heavyweight process prescriptions to iterative, people-centric improvement through Scrum, XP, and Crystal.</div>
+      </div>
+    </div>
+    <div class="timeline">
+      <div class="tl-item" style="--c2: #34d399">
+        <div class="tl-year">2002</div>
+        <div class="tl-name">CMMI v1 (Integration)</div>
+        <div class="tl-desc">SEI merges multiple CMMs into CMMI, covering software, systems, and supplier management. Global adoption accelerates especially in government contracting.</div>
+      </div>
+      <div class="tl-item" style="--c2: #fbbf24">
+        <div class="tl-year">2009</div>
+        <div class="tl-name">DevOps Movement</div>
+        <div class="tl-desc">Patrick Debois coins "DevOps" — combining development and operations through CI/CD pipelines, automated testing, and shared responsibility culture.</div>
+      </div>
+      <div class="tl-item" style="--c2: #f472b6">
+        <div class="tl-year">2014</div>
+        <div class="tl-name">DORA Research Program</div>
+        <div class="tl-desc">DevOps Research and Assessment begins quantifying elite software delivery performance through deployment frequency, lead time, MTTR, and change failure rate.</div>
+      </div>
+      <div class="tl-item" style="--c2: #a78bfa">
+        <div class="tl-year">2018</div>
+        <div class="tl-name">SAFe 5 / Scaled Agile</div>
+        <div class="tl-desc">Scaled Agile Framework reaches mainstream enterprise adoption, bridging Agile team practices with portfolio-level SPI governance.</div>
+      </div>
+      <div class="tl-item" style="--c2: #38bdf8">
+        <div class="tl-year">2022–24</div>
+        <div class="tl-name">GenAI Enters the SDLC</div>
+        <div class="tl-desc">GitHub Copilot, ChatGPT, and code-generation LLMs transform developer workflows — triggering new SPI research on AI code quality, cognitive debt, and measurement.</div>
+      </div>
+      <div class="tl-item" style="--c2: #34d399">
+        <div class="tl-year">2025</div>
+        <div class="tl-name">CMMI AI Working Group</div>
+        <div class="tl-desc">IBM joins CMMI Institute's AI WG, embedding RPA, ML, GenAI, and DevSecOps into next-generation CMMI process areas for AI-augmented development.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ AI & SPI ══════════ -->
+<div class="panel" id="ai">
+  <p class="section-title">AI & Automated Process Improvement</p>
+  <p class="section-desc">Generative AI and ML are both a subject of SPI research and an instrument for conducting it. This creates a dual challenge: improving processes that now involve AI, and using AI to improve processes.</p>
+
+  <div class="card-grid">
+    <div class="card" style="--c: #38bdf8">
+      <div class="card-icon">🔍</div>
+      <div class="card-title">AI-Powered Code Analysis</div>
+      <div class="card-body">ML models trained on large codebases perform pattern-based debt detection, flagging anti-patterns, security vulnerabilities, and architectural smells automatically.</div>
+      <div class="card-tags"><span class="ctag">Static Analysis</span><span class="ctag">SATD</span><span class="ctag">Security</span></div>
+    </div>
+    <div class="card" style="--c: #f472b6">
+      <div class="card-icon">🛠️</div>
+      <div class="card-title">Automated Refactoring</div>
+      <div class="card-body">Platforms like Refact.ai and OpenRewrite propose semantic-preserving code improvements. LLMs (Sun et al., 2025) show promise for SATD repayment automation.</div>
+      <div class="card-tags"><span class="ctag">LLM</span><span class="ctag">Refact.ai</span><span class="ctag">OpenRewrite</span></div>
+    </div>
+    <div class="card" style="--c: #34d399">
+      <div class="card-icon">📉</div>
+      <div class="card-title">Predictive Risk Mapping</div>
+      <div class="card-body">Tools like Stepsize use historical churn, coupling, and defect data to highlight the sections of a codebase most susceptible to future quality degradation.</div>
+      <div class="card-tags"><span class="ctag">Risk Mapping</span><span class="ctag">Churn Analysis</span><span class="ctag">Coupling</span></div>
+    </div>
+    <div class="card" style="--c: #fbbf24">
+      <div class="card-icon">🔮</div>
+      <div class="card-title">Bottleneck Prediction</div>
+      <div class="card-body">AI tools in LSS pipelines now predict bottlenecks in real-time from IoT and workflow data, enabling proactive rather than reactive process corrections.</div>
+      <div class="card-tags"><span class="ctag">IoT</span><span class="ctag">Predictive Analytics</span><span class="ctag">LSS+AI</span></div>
+    </div>
+    <div class="card" style="--c: #a78bfa">
+      <div class="card-icon">⚠️</div>
+      <div class="card-title">Cognitive & Intent Debt</div>
+      <div class="card-body">New debt types emerging from AI-generated code: teams may not understand code they own ("cognitive debt") or remember why it was built ("intent debt") — a novel SPI challenge.</div>
+      <div class="card-tags"><span class="ctag">New Concept</span><span class="ctag">2025 Research</span><span class="ctag">Team Knowledge</span></div>
+    </div>
+    <div class="card" style="--c: #38bdf8">
+      <div class="card-icon">📋</div>
+      <div class="card-title">Hybrid Review Systems</div>
+      <div class="card-body">Microsoft Research (2025) on Proactive Technical Debt Management finds hybrid AI+human review systems improve efficiency without significant loss of review quality.</div>
+      <div class="card-tags"><span class="ctag">Code Review</span><span class="ctag">Hybrid AI</span><span class="ctag">MSR 2025</span></div>
+    </div>
+  </div>
+
+  <h3>Open Research Questions</h3>
+  <div class="insight" style="--c3: #a78bfa">
+    <div class="insight-label">Open Problem · Measurement</div>
+    <div class="insight-text">How should process quality metrics evolve when significant portions of code are AI-generated? Existing DORA and SPACE frameworks were not designed for AI-augmented teams.</div>
+  </div>
+  <div class="insight" style="--c3: #f472b6">
+    <div class="insight-label">Open Problem · Ethics & Skills</div>
+    <div class="insight-text">Organizational expectations for rapid AI productivity gains, without corresponding investment in learning support, may erode the deep understanding needed for safe, long-term code evolution.</div>
+  </div>
+  <div class="insight" style="--c3: #38bdf8">
+    <div class="insight-label">Open Problem · Data Quality</div>
+    <div class="insight-text">AI-for-SPI approaches depend on high-quality historical process data — a persistent challenge for organisations with immature process instrumentation and telemetry.</div>
+  </div>
+</div>
+
+<!-- ══════════ REFERENCES ══════════ -->
+<div class="panel" id="refs">
+  <p class="section-title">Key References & Sources</p>
+  <p class="section-desc">Curated research papers, conference proceedings, and industry reports anchoring this knowledge base.</p>
+
+  <div class="ref-item">
+    <div class="ref-num">[1]</div>
+    <div>
+      <div class="ref-title">PROFES 2024 — Product-Focused Software Process Improvement</div>
+      <div class="ref-meta">25th International Conference, Tartu, Estonia, December 2–4, 2024. Editors: Pfahl, Gonzalez Huerta, Klünder, Anwar. Springer Nature. 18 full papers + 12 short + 9 industry papers from 85 submissions.</div>
+      <a class="ref-link" href="https://link.springer.com/book/10.1007/978-3-031-78386-9" target="_blank">→ Springer Link</a>
+    </div>
+  </div>
+
+  <div class="ref-item">
+    <div class="ref-num">[2]</div>
+    <div>
+      <div class="ref-title">EuroSPI 2024 — Systems, Software and Services Process Improvement</div>
+      <div class="ref-meta">31st European Conference, Munich, September 2024. 55 papers, 2 volumes. Covers: SPI × Functional Safety, Cybersecurity, Sustainability, Agile, Digitalisation. (Springer CCIS 2179+2180)</div>
+      <a class="ref-link" href="https://link.springer.com/conference/eurospi" target="_blank">→ Springer Link</a>
+    </div>
+  </div>
+
+  <div class="ref-item">
+    <div class="ref-num">[3]</div>
+    <div>
+      <div class="ref-title">Santos et al. (2025) — What Leads to the Success of Agile Transformation Initiatives?</div>
+      <div class="ref-meta">Journal of Software Engineering Research and Development, 13:1, Feb 2025. DOI: 10.5753/jserd.2025.4502. Study on Critical Success Factors for Agile transformation.</div>
+    </div>
+  </div>
+
+  <div class="ref-item">
+    <div class="ref-num">[4]</div>
+    <div>
+      <div class="ref-title">CIMPS 2025 — 14th International Conference on Software Process Improvement</div>
+      <div class="ref-meta">Lima, Perú, October 15–17, 2025. Special Issue in CMC journal. Topics: software engineering for AI solutions, human factors, multi-model environments, process improvements.</div>
+      <a class="ref-link" href="https://www.techscience.com/cmc/special_detail/CIMPS" target="_blank">→ TechScience</a>
+    </div>
+  </div>
+
+  <div class="ref-item">
+    <div class="ref-num">[5]</div>
+    <div>
+      <div class="ref-title">Artificial Intelligence for Technical Debt Management in Software Development</div>
+      <div class="ref-meta">Literature review of 15 papers covering AI-powered techniques: code analysis, automated testing, refactoring, predictive maintenance, code generation. arXiv:2306.10194.</div>
+      <a class="ref-link" href="https://arxiv.org/pdf/2306.10194" target="_blank">→ arXiv</a>
+    </div>
+  </div>
+
+  <div class="ref-item">
+    <div class="ref-num">[6]</div>
+    <div>
+      <div class="ref-title">From Technical Debt to Cognitive and Intent Debt (2025)</div>
+      <div class="ref-meta">Proposes new debt taxonomy for the AI coding era. Argues GenAI may reduce traditional technical debt while accelerating cognitive and intent debt. arXiv:2603.22106.</div>
+      <a class="ref-link" href="https://arxiv.org/pdf/2603.22106" target="_blank">→ arXiv</a>
+    </div>
+  </div>
+
+  <div class="ref-item">
+    <div class="ref-num">[7]</div>
+    <div>
+      <div class="ref-title">Debt Behind the AI Boom: AI-Generated Code in the Wild (2025)</div>
+      <div class="ref-meta">Large-scale empirical study. Reports 84% Stack Overflow developer AI adoption, 20%+ AI code share at Google/Microsoft, functional bugs and security risks in AI-generated code. arXiv:2603.28592.</div>
+      <a class="ref-link" href="https://arxiv.org/pdf/2603.28592" target="_blank">→ arXiv</a>
+    </div>
+  </div>
+
+  <div class="ref-item">
+    <div class="ref-num">[8]</div>
+    <div>
+      <div class="ref-title">AI-Assisted Programming Decreases Productivity of Experienced Developers (2025)</div>
+      <div class="ref-meta">Finds AI coding tools can increase technical debt and maintenance burden for experienced developers despite productivity promises. arXiv:2510.10165.</div>
+      <a class="ref-link" href="https://arxiv.org/pdf/2510.10165" target="_blank">→ arXiv</a>
+    </div>
+  </div>
+
+  <div class="ref-item">
+    <div class="ref-num">[9]</div>
+    <div>
+      <div class="ref-title">IBM Joins CMMI Institute's AI Content Development Initiative (2025)</div>
+      <div class="ref-meta">ISACA press release, April 2025. IBM Consulting joins CMMI AI Working Group — integrating RPA, ML, DL, GenAI, DevSecOps into CMMI best practices framework.</div>
+      <a class="ref-link" href="https://www.isaca.org/about-us/newsroom/press-releases/2025/ibm-joins-cmmi-institutes-ai-content-development-initiative" target="_blank">→ ISACA</a>
+    </div>
+  </div>
+
+  <div class="ref-item">
+    <div class="ref-num">[10]</div>
+    <div>
+      <div class="ref-title">PEX Report 2025/26 — Lean, Agile & Six Sigma in Business Transformation</div>
+      <div class="ref-meta">Survey of 200+ process excellence professionals. Lean (40%), Agile (39%), Six Sigma (28%), TQM/TPM (22%), Gemba Kaizen (16%) remain the top transformation methodologies.</div>
+      <a class="ref-link" href="https://www.processexcellencenetwork.com/business-transformation/news/lean-agile-six-sigma-still-powering-business-transformation-in-2025" target="_blank">→ PEX Network</a>
+    </div>
+  </div>
+
+  <div class="ref-item">
+    <div class="ref-num">[11]</div>
+    <div>
+      <div class="ref-title">The Integration of Agile Methodologies with Lean Six Sigma in Software Engineering (2025)</div>
+      <div class="ref-meta">ResearchGate. Explores DMAIC + Agile integration for defect reduction and resource optimisation in software projects.</div>
+      <a class="ref-link" href="https://www.researchgate.net/publication/387829724_The_Integration_of_Agile_Methodologies_with_Lean_Six_Sigma_in_Software_Engineering_Projects" target="_blank">→ ResearchGate</a>
+    </div>
+  </div>
+
+  <div class="ref-item">
+    <div class="ref-num">[12]</div>
+    <div>
+      <div class="ref-title">Breaking Old Habits: Success Factors in Software Process Improvement (ICSSP 2024)</div>
+      <div class="ref-meta">ACM DL. ICSSP 2024 proceedings. Examines human and organisational factors in successful SPI initiatives and the conditions under which improvement programs fail.</div>
+      <a class="ref-link" href="https://dl.acm.org/doi/10.1145/3666015.3666022" target="_blank">→ ACM DL</a>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<script>
+function show(id, el) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  el.classList.add('active');
+}
+</script>
+</body>
+</html>
